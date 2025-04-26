@@ -23,38 +23,7 @@ You will learn how to do [data prep](#Data), how to [train](#Train), how to [run
 
 Visit our docs for all our [model uploads](https://docs.unsloth.ai/get-started/all-our-models) and [notebooks](https://docs.unsloth.ai/get-started/unsloth-notebooks).
 
-### Installation
 """
-
-# Commented out IPython magic to ensure Python compatibility.
-# %%capture
-# import os
-# if "COLAB_" not in "".join(os.environ.keys()):
-#     !pip install unsloth vllm
-# else:
-#     # [NOTE] Do the below ONLY in Colab! Use [[pip install unsloth vllm]]
-#     !pip install --no-deps unsloth vllm
-
-# Commented out IPython magic to ensure Python compatibility.
-# #@title Colab Extra Install { display-mode: "form" }
-# %%capture
-# import os
-# if "COLAB_" not in "".join(os.environ.keys()):
-#     !pip install unsloth vllm
-# else:
-#     !pip install --no-deps unsloth vllm
-#     # [NOTE] Do the below ONLY in Colab! Use [[pip install unsloth vllm]]
-#     # Skip restarting message in Colab
-#     import sys, re, requests; modules = list(sys.modules.keys())
-#     for x in modules: sys.modules.pop(x) if "PIL" in x or "google" in x else None
-#     !pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft "trl==0.15.2" triton cut_cross_entropy unsloth_zoo
-#     !pip install sentencepiece protobuf datasets huggingface_hub hf_transfer
-#
-#     # vLLM requirements - vLLM breaks Colab due to reinstalling numpy
-#     f = requests.get("https://raw.githubusercontent.com/vllm-project/vllm/refs/heads/main/requirements/common.txt").content
-#     with open("vllm_requirements.txt", "wb") as file:
-#         file.write(re.sub(rb"(transformers|numpy|xformers)[^\n]{1,}\n", b"", f))
-#     !pip install -r vllm_requirements.txt
 
 """### Unsloth
 
@@ -231,7 +200,8 @@ training_args = GRPOConfig(
     num_generations=2,  # Decrease if out of memory
     # num_generations=6,  # Decrease if out of memory
     max_prompt_length=256,
-    max_completion_length=200,
+    # max_completion_length=200,
+    max_completion_length=3000,
     # num_train_epochs = 1, # Set to 1 for a full training run
     max_steps=100,
     save_steps=250,
