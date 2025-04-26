@@ -1,0 +1,24 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+Unsloth: Failed to patch Gemma3ForConditionalGeneration.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+INFO 04-26 20:27:27 [__init__.py:239] Automatically detected platform cuda.
+Unsloth: Switching from Unsloth dynamic quant to normal quant since
+we do not yet support fast inference for unsloth/phi-4-unsloth-bnb-4bit
+==((====))==  Unsloth 2025.3.19: Fast Llama patching. Transformers: 4.51.3. vLLM: 0.8.4.
+   \\   /|    NVIDIA GeForce RTX 2080 Ti. Num GPUs = 1. Max memory: 22.0 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.6.0+cu124. CUDA: 7.5. CUDA Toolkit: 12.4. Triton: 3.2.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.29.post2. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Unsloth: vLLM loading unsloth/phi-4-bnb-4bit with actual GPU utilization = 66.12%
+Unsloth: Your GPU has CUDA compute capability 7.5 with VRAM = 22.0 GB.
+Unsloth: Using conservativeness = 1.0. Chunked prefill tokens = 1024. Num Sequences = 192.
+Unsloth: vLLM's KV Cache can use up to 4.57 GB. Also swap space = 5 GB.
+WARNING 04-26 20:27:35 [config.py:2836] Casting torch.bfloat16 to torch.float16.
+INFO 04-26 20:27:39 [config.py:689] This model supports multiple tasks: {'embed', 'classify', 'reward', 'score', 'generate'}. Defaulting to 'generate'.
+WARNING 04-26 20:27:39 [arg_utils.py:1731] Compute Capability < 8.0 is not supported by the V1 Engine. Falling back to V0. 
+Unsloth: vLLM Bitsandbytes config using kwargs = {'load_in_8bit': False, 'load_in_4bit': True, 'bnb_4bit_compute_dtype': 'float16', 'bnb_4bit_quant_storage': 'uint8', 'bnb_4bit_quant_type': 'nf4', 'bnb_4bit_use_double_quant': True, 'llm_int8_enable_fp32_cpu_offload': False, 'llm_int8_has_fp16_weight': False, 'llm_int8_skip_modules': ['lm_head', 'multi_modal_projector', 'merger', 'modality_projection'], 'llm_int8_threshold': 6.0}
+INFO 04-26 20:27:39 [llm_engine.py:243] Initializing a V0 LLM engine (v0.8.4) with config: model='unsloth/phi-4-bnb-4bit', speculative_config=None, tokenizer='unsloth/phi-4-bnb-4bit', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=1024, download_dir=None, load_format=LoadFormat.BITSANDBYTES, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=bitsandbytes, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda:0, decoding_config=DecodingConfig(guided_decoding_backend='auto', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=unsloth/phi-4-bnb-4bit, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=False, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"level":0,"splitting_ops":[],"compile_sizes":[],"cudagraph_capture_sizes":[192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":192}, use_cached_outputs=False, 
+WARNING 04-26 20:27:40 [interface.py:310] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+INFO 04-26 20:27:40 [cuda.py:240] Cannot use FlashAttention-2 backend for Volta and Turing GPUs.
+INFO 04-26 20:27:40 [cuda.py:289] Using XFormers backend.
