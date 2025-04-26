@@ -1,0 +1,247 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+Unsloth: Failed to patch Gemma3ForConditionalGeneration.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+INFO 04-26 20:53:10 [__init__.py:239] Automatically detected platform cuda.
+Unsloth: Switching from Unsloth dynamic quant to normal quant since
+we do not yet support fast inference for unsloth/phi-4-unsloth-bnb-4bit
+==((====))==  Unsloth 2025.3.19: Fast Llama patching. Transformers: 4.51.3. vLLM: 0.8.4.
+   \\   /|    NVIDIA GeForce RTX 2080 Ti. Num GPUs = 1. Max memory: 22.0 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.6.0+cu124. CUDA: 7.5. CUDA Toolkit: 12.4. Triton: 3.2.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.29.post2. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Unsloth: vLLM loading unsloth/phi-4-bnb-4bit with actual GPU utilization = 85.01%
+Unsloth: Your GPU has CUDA compute capability 7.5 with VRAM = 22.0 GB.
+Unsloth: Using conservativeness = 1.0. Chunked prefill tokens = 512. Num Sequences = 224.
+Unsloth: vLLM's KV Cache can use up to 8.73 GB. Also swap space = 5 GB.
+WARNING 04-26 20:53:19 [config.py:2836] Casting torch.bfloat16 to torch.float16.
+INFO 04-26 20:53:23 [config.py:689] This model supports multiple tasks: {'reward', 'generate', 'score', 'embed', 'classify'}. Defaulting to 'generate'.
+WARNING 04-26 20:53:23 [arg_utils.py:1731] Compute Capability < 8.0 is not supported by the V1 Engine. Falling back to V0. 
+Unsloth: vLLM Bitsandbytes config using kwargs = {'load_in_8bit': False, 'load_in_4bit': True, 'bnb_4bit_compute_dtype': 'float16', 'bnb_4bit_quant_storage': 'uint8', 'bnb_4bit_quant_type': 'nf4', 'bnb_4bit_use_double_quant': True, 'llm_int8_enable_fp32_cpu_offload': False, 'llm_int8_has_fp16_weight': False, 'llm_int8_skip_modules': ['lm_head', 'multi_modal_projector', 'merger', 'modality_projection'], 'llm_int8_threshold': 6.0}
+INFO 04-26 20:53:23 [llm_engine.py:243] Initializing a V0 LLM engine (v0.8.4) with config: model='unsloth/phi-4-bnb-4bit', speculative_config=None, tokenizer='unsloth/phi-4-bnb-4bit', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=512, download_dir=None, load_format=LoadFormat.BITSANDBYTES, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=bitsandbytes, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda:0, decoding_config=DecodingConfig(guided_decoding_backend='auto', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=unsloth/phi-4-bnb-4bit, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=False, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"level":0,"splitting_ops":[],"compile_sizes":[],"cudagraph_capture_sizes":[224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":224}, use_cached_outputs=False, 
+WARNING 04-26 20:53:23 [interface.py:310] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+INFO 04-26 20:53:23 [cuda.py:240] Cannot use FlashAttention-2 backend for Volta and Turing GPUs.
+INFO 04-26 20:53:23 [cuda.py:289] Using XFormers backend.
+INFO 04-26 20:53:44 [parallel_state.py:959] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0
+INFO 04-26 20:53:44 [model_runner.py:1110] Starting to load model unsloth/phi-4-bnb-4bit...
+INFO 04-26 20:53:44 [loader.py:1166] Loading weights with BitsAndBytes quantization. May take a while ...
+INFO 04-26 20:53:45 [weight_utils.py:265] Using model weights format ['*.safetensors']
+INFO 04-26 20:53:48 [punica_selector.py:18] Using PunicaWrapperGPU.
+INFO 04-26 20:53:48 [model_runner.py:1146] Model loading took 8.6253 GiB and 4.676360 seconds
+INFO 04-26 20:53:50 [worker.py:267] Memory profiling takes 1.36 seconds
+INFO 04-26 20:53:50 [worker.py:267] the current vLLM instance can use total_gpu_memory (22.00GiB) x gpu_memory_utilization (0.85) = 18.70GiB
+INFO 04-26 20:53:50 [worker.py:267] model weights take 8.63GiB; non_torch_memory takes 0.04GiB; PyTorch activation peak memory takes 0.82GiB; the rest of the memory reserved for KV Cache is 9.22GiB.
+INFO 04-26 20:53:50 [executor_base.py:112] # cuda blocks: 3022, # CPU blocks: 1638
+INFO 04-26 20:53:50 [executor_base.py:117] Maximum concurrency for 512 tokens per request: 94.44x
+INFO 04-26 20:53:51 [model_runner.py:1456] Capturing cudagraphs for decoding. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI. If out-of-memory error occurs during cudagraph capture, consider decreasing `gpu_memory_utilization` or switching to eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 04-26 20:54:16 [model_runner.py:1598] Graph capturing finished in 25 secs, took 0.71 GiB
+INFO 04-26 20:54:16 [llm_engine.py:449] init engine (profile, create kv cache, warmup model) took 27.68 seconds
+Unsloth: We now expect `per_device_train_batch_size` to be a multiple of `num_generations`.
+We will change the batch size of 1 to the `num_generations` of 2
+-------------------- Question:
+A concert ticket costs $40. Mr. Benson bought 12 tickets and received a 5% discount for every ticket bought that exceeds 10. How much did Mr. Benson pay in all? 
+Answer:
+476 
+Response:
+<reasoning>
+To determine how much Mr. Benson paid, we need to calculate the cost of the first 10 tickets and then apply the discount for the remaining 2 tickets.
+
+1. **Calculate the cost of the first 10 tickets:**
+   - Each ticket costs $40.
+   - Therefore, the cost for 10 tickets is \(10 \times 40 = 400\) dollars.
+
+2. **Calculate the cost of the additional 2 tickets with a discount:**
+   - Normally, each ticket costs $40.
+   - He receives a 5% discount for each ticket beyond the 10th.
+   - The discount per ticket is \(5\% \times 40 = 0.05 \times 40 = 2\) dollars.
+   - Therefore, the discounted price per ticket is \(40 - 2 = 38\) dollars.
+   - The cost for 2 discounted tickets is \(2 \times 38 = 76\) dollars.
+
+3. **Calculate the total amount paid:**
+   - Add the cost of the first 10 tickets and the cost of the discounted 2 tickets:  
+   \(400 + 76 = 476\) dollars.
+
+Thus, Mr. Benson paid a total of $476 for all 12 tickets.
+</reasoning>
+
+<answer>
+476
+</answer> 
+Extracted:
+476
+{'loss': 0.0, 'grad_norm': 0.04371342435479164, 'learning_rate': 0.0, 'rewards/xmlcount_reward_func': -0.4154999852180481, 'rewards/soft_format_reward_func': 0.0, 'rewards/strict_format_reward_func': 0.0, 'rewards/int_reward_func': 0.25, 'rewards/correctness_reward_func': 1.0, 'reward': 0.8345000147819519, 'reward_std': 1.68927800655365, 'completion_length': 268.5, 'kl': 0.0, 'epoch': 0.0}
+-------------------- Question:
+Jane is trying to decide whether to buy a house or a trailer. A house costs $480,000 and a trailer costs $120,000. Each loan will be paid in monthly installments over 20 years. How much more is the monthly payment on the house compared to the trailer? 
+Answer:
+1500 
+Response:
+<reasoning>
+To compare the monthly payments for both the house and the trailer, we will calculate the monthly payments for each and then find the difference. We assume the following for simplicity:
+
+1. **Loan Amounts:**
+   - House: $480,000
+   - Trailer: $120,000
+
+2. **Loan Term:** 20 years = 240 months
+
+3. **Interest Rate:** Without explicit information on the interest rate, we typically use a common mortgage rate when evaluating scenarios like this. However, without specific information, we might use a hypothetical interest rate for demonstration purposes. Let's assume a common mortgage interest rate of 4% per annum (0.04/12 per month) for both loans. 
+
+The formula to calculate the monthly payment \( M \) for a loan is given by:
+
+\[
+M = P \frac{r(1 + r)^n}{(1 + r)^n - 1}
+\]
+
+where:
+- \( P \) is the principal loan amount,
+- \( r \) is the monthly interest rate,
+- \( n \) is the number of payments.
+
+Let's calculate the monthly payment for both the house and the trailer using this formula.
+
+**Step-by-step Calculations:**
+
+1. **Calculate \( r \):**  
+   The annual interest rate is 4%, so the monthly interest rate \( r \) is:  
+   \[
+   r = \frac{0.04}{12} = 0.003333\ldots
+   \]
+
+2. **Calculate \( n \):**  
+   The loan term is 20 years, so \( n \) is:  
+   \[
+   n = 20 \times 12 = 240
+   \]
+
+3. **Monthly Payment for the House:**  
+   \[
+   M_{\text{house}} = 480,000 \times \frac{0.003333\ldots(1 + 0.003333\ldots)^{240}}{(1 + 0.003 
+Extracted:
+<reasoning>
+To compare the monthly payments for both the house and the trailer, we will calculate the monthly payments for each and then find the difference. We assume the following for simplicity:
+
+1. **Loan Amounts:**
+   - House: $480,000
+   - Trailer: $120,000
+
+2. **Loan Term:** 20 years = 240 months
+
+3. **Interest Rate:** Without explicit information on the interest rate, we typically use a common mortgage rate when evaluating scenarios like this. However, without specific information, we might use a hypothetical interest rate for demonstration purposes. Let's assume a common mortgage interest rate of 4% per annum (0.04/12 per month) for both loans. 
+
+The formula to calculate the monthly payment \( M \) for a loan is given by:
+
+\[
+M = P \frac{r(1 + r)^n}{(1 + r)^n - 1}
+\]
+
+where:
+- \( P \) is the principal loan amount,
+- \( r \) is the monthly interest rate,
+- \( n \) is the number of payments.
+
+Let's calculate the monthly payment for both the house and the trailer using this formula.
+
+**Step-by-step Calculations:**
+
+1. **Calculate \( r \):**  
+   The annual interest rate is 4%, so the monthly interest rate \( r \) is:  
+   \[
+   r = \frac{0.04}{12} = 0.003333\ldots
+   \]
+
+2. **Calculate \( n \):**  
+   The loan term is 20 years, so \( n \) is:  
+   \[
+   n = 20 \times 12 = 240
+   \]
+
+3. **Monthly Payment for the House:**  
+   \[
+   M_{\text{house}} = 480,000 \times \frac{0.003333\ldots(1 + 0.003333\ldots)^{240}}{(1 + 0.003
+Unsloth: Will smartly offload gradients to save VRAM!
+{'loss': 0.0, 'grad_norm': 0.0, 'learning_rate': 2.0000000000000003e-06, 'rewards/xmlcount_reward_func': 0.125, 'rewards/soft_format_reward_func': 0.0, 'rewards/strict_format_reward_func': 0.0, 'rewards/int_reward_func': 0.0, 'rewards/correctness_reward_func': 0.0, 'reward': 0.125, 'reward_std': 0.0, 'completion_length': 421.0, 'kl': 0.0, 'epoch': 0.0}
+-------------------- Question:
+Janet pays $40/hour for 3 hours per week of clarinet lessons and $28/hour for 5 hours a week of piano lessons. How much more does she spend on piano lessons than clarinet lessons in a year? 
+Answer:
+1040 
+Response:
+<reasoning>
+To find out how much more Janet spends on piano lessons than clarinet lessons in a year, we need to calculate her weekly and then annual spending for each type of lesson, and then compare the two.
+
+1. **Clarinet Lessons:**
+   - Janet pays $40 per hour for clarinet lessons.
+   - She has 3 hours of clarinet lessons per week.
+   - Weekly cost for clarinet lessons = $40/hour * 3 hours/week = $120/week.
+   - Annual cost for clarinet lessons = $120/week * 52 weeks/year = $6,240/year.
+
+2. **Piano Lessons:**
+   - Janet pays $28 per hour for piano lessons.
+   - She has 5 hours of piano lessons per week.
+   - Weekly cost for piano lessons = $28/hour * 5 hours/week = $140/week.
+   - Annual cost for piano lessons = $140/week * 52 weeks/year = $7,280/year.
+
+3. **Comparison:**
+   - Difference in annual spending = Annual cost for piano lessons - Annual cost for clarinet lessons.
+   - Difference = $7,280/year - $6,240/year = $1,040/year.
+
+Janet spends $1,040 more on piano lessons than on clarinet lessons in a year.
+</reasoning>
+
+<answer>
+Janet spends $1,040 more on piano lessons than on clarinet lessons in a year.
+</answer> 
+Extracted:
+Janet spends $1,040 more on piano lessons than on clarinet lessons in a year.
+{'loss': 0.0, 'grad_norm': 0.5839112401008606, 'learning_rate': 4.000000000000001e-06, 'rewards/xmlcount_reward_func': -0.8164999485015869, 'rewards/soft_format_reward_func': 0.0, 'rewards/strict_format_reward_func': 0.0, 'rewards/int_reward_func': 0.0, 'rewards/correctness_reward_func': 0.0, 'reward': -0.8164999485015869, 'reward_std': 0.2552655339241028, 'completion_length': 370.5, 'kl': 0.00011766581155825406, 'epoch': 0.0}
+-------------------- Question:
+Sabrina is collecting herbs to make a poultice for her grandmother. She needs twice as many basil leaves as sage leaves and 5 fewer sage leaves than verbena leaves. If she needs 12 basil leaves, how many leaves total does she need? 
+Answer:
+29 
+Response:
+<reasoning>
+To find out the total number of leaves Sabrina needs, we will go through the relationships and values step by step.
+
+1. **Determine the number of sage leaves:**
+   - Sabrina needs twice as many basil leaves as sage leaves.
+   - She has 12 basil leaves.
+   - Let \( S \) be the number of sage leaves.
+   - From the problem, we know: 
+     \[
+     2S = 12
+     \]
+   - Solving for \( S \):
+     \[
+     S = \frac{12}{2} = 6
+     \]
+
+2. **Determine the number of verbena leaves:**
+   - Sabrina needs 5 fewer sage leaves than verbena leaves. Assume \( V \) is the number of verbena leaves.
+   - Given that she needs 6 sage leaves, we have:
+     \[
+     S = V - 5
+     \]
+   - Substitute \( S = 6 \) into the equation:
+     \[
+     6 = V - 5
+     \]
+   - Solving for \( V \):
+     \[
+     V = 6 + 5 = 11
+     \]
+
+3. **Calculate the total number of leaves:**
+   - Sabrina collects three types of leaves: basil, sage, and verbena.
+   - Total number of leaves is the sum of basil, sage, and verbena leaves:
+     \[
+     \text{Total leaves} = \text{Basil leaves} + \text{Sage leaves} + \text{Verbena leaves}
+     \]
+     \[
+     \text{Total leaves} = 12 + 6 + 11 = 29
+     \]
+
+Thus, the total number of leaves Sabrina needs is 29.
+</reasoning>
+
+<answer>
+29
+</answer>
