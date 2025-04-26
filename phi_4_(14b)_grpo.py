@@ -228,7 +228,8 @@ training_args = GRPOConfig(
     max_steps=100,  # 加快训练速度。对于完整运行，请替换为 num_train_epochs = 1 （建议进行 1-3 次迭代以避免过拟合）。
     save_steps=250,
     max_grad_norm=0.1,
-    report_to="none",  # Can use Weights & Biases
+    report_to="wandb",  # Can use Weights & Biases
+    # report_to="none",  # Can use Weights & Biases
     output_dir="outputs",
 )
 
