@@ -87,6 +87,7 @@ model, tokenizer = FastModel.from_pretrained(
     # token = "hf_...", # use one if using gated models
 )
 
+
 """We now add LoRA adapters so we only need to update a small amount of parameters!"""
 
 model = FastModel.get_peft_model(
@@ -186,6 +187,9 @@ trainer = SFTTrainer(
         seed=3407,
         report_to="none",  # Use this for WandB etc
         dataset_num_proc=2,
+        fp16=True,  # 开启混合精度
+        # fp16=False,
+        bf16=False
     ),
 )
 

@@ -1,0 +1,60 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+Unsloth: Failed to patch SmolVLMForConditionalGeneration forward function.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+INFO 04-27 15:55:19 [__init__.py:239] Automatically detected platform cuda.
+==((====))==  Unsloth 2025.4.1: Fast Qwen2 patching. Transformers: 4.51.3. vLLM: 0.8.4.
+   \\   /|    NVIDIA GeForce RTX 2080 Ti. Num GPUs = 1. Max memory: 22.0 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.6.0+cu124. CUDA: 7.5. CUDA Toolkit: 12.4. Triton: 3.2.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.29.post2. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Unsloth: vLLM loading unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit with actual GPU utilization = 37.78%
+Unsloth: Your GPU has CUDA compute capability 7.5 with VRAM = 22.0 GB.
+Unsloth: Using conservativeness = 1.0. Chunked prefill tokens = 512. Num Sequences = 192.
+Unsloth: vLLM's KV Cache can use up to 6.09 GB. Also swap space = 5 GB.
+WARNING 04-27 15:55:30 [config.py:2836] Casting torch.bfloat16 to torch.float16.
+INFO 04-27 15:55:34 [config.py:689] This model supports multiple tasks: {'generate', 'score', 'classify', 'embed', 'reward'}. Defaulting to 'generate'.
+WARNING 04-27 15:55:34 [arg_utils.py:1731] Compute Capability < 8.0 is not supported by the V1 Engine. Falling back to V0. 
+Unsloth: vLLM Bitsandbytes config using kwargs = {'load_in_8bit': False, 'load_in_4bit': True, 'bnb_4bit_compute_dtype': 'float16', 'bnb_4bit_quant_storage': 'uint8', 'bnb_4bit_quant_type': 'nf4', 'bnb_4bit_use_double_quant': True, 'llm_int8_enable_fp32_cpu_offload': False, 'llm_int8_has_fp16_weight': False, 'llm_int8_skip_modules': ['lm_head', 'multi_modal_projector', 'merger', 'modality_projection', 'model.layers.2.mlp', 'model.layers.3.mlp', 'model.layers.30.mlp'], 'llm_int8_threshold': 6.0}
+INFO 04-27 15:55:34 [llm_engine.py:243] Initializing a V0 LLM engine (v0.8.4) with config: model='unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit', speculative_config=None, tokenizer='unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=512, download_dir=None, load_format=LoadFormat.BITSANDBYTES, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=bitsandbytes, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda:0, decoding_config=DecodingConfig(guided_decoding_backend='auto', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=False, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"level":0,"splitting_ops":[],"compile_sizes":[],"cudagraph_capture_sizes":[192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":192}, use_cached_outputs=False, 
+WARNING 04-27 15:55:36 [interface.py:310] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+INFO 04-27 15:55:36 [cuda.py:240] Cannot use FlashAttention-2 backend for Volta and Turing GPUs.
+INFO 04-27 15:55:36 [cuda.py:289] Using XFormers backend.
+INFO 04-27 15:55:56 [parallel_state.py:959] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0
+INFO 04-27 15:55:56 [model_runner.py:1110] Starting to load model unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit...
+INFO 04-27 15:55:56 [loader.py:1166] Loading weights with BitsAndBytes quantization. May take a while ...
+INFO 04-27 15:55:58 [weight_utils.py:265] Using model weights format ['*.safetensors']
+INFO 04-27 15:55:58 [weight_utils.py:281] Time spent downloading weights for unsloth/qwen2.5-3b-instruct-unsloth-bnb-4bit: 0.519749 seconds
+INFO 04-27 15:55:59 [weight_utils.py:315] No model.safetensors.index.json found in remote.
+INFO 04-27 15:56:00 [punica_selector.py:18] Using PunicaWrapperGPU.
+INFO 04-27 15:56:00 [model_runner.py:1146] Model loading took 2.2440 GiB and 3.854525 seconds
+INFO 04-27 15:56:03 [worker.py:267] Memory profiling takes 3.15 seconds
+INFO 04-27 15:56:03 [worker.py:267] the current vLLM instance can use total_gpu_memory (22.00GiB) x gpu_memory_utilization (0.38) = 8.31GiB
+INFO 04-27 15:56:03 [worker.py:267] model weights take 2.24GiB; non_torch_memory takes 0.04GiB; PyTorch activation peak memory takes 1.05GiB; the rest of the memory reserved for KV Cache is 4.99GiB.
+INFO 04-27 15:56:04 [executor_base.py:112] # cuda blocks: 9079, # CPU blocks: 9102
+INFO 04-27 15:56:04 [executor_base.py:117] Maximum concurrency for 512 tokens per request: 283.72x
+INFO 04-27 15:56:04 [model_runner.py:1456] Capturing cudagraphs for decoding. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI. If out-of-memory error occurs during cudagraph capture, consider decreasing `gpu_memory_utilization` or switching to eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 04-27 15:56:21 [model_runner.py:1598] Graph capturing finished in 17 secs, took 0.56 GiB
+INFO 04-27 15:56:21 [llm_engine.py:449] init engine (profile, create kv cache, warmup model) took 21.30 seconds
+Unsloth: We now expect `per_device_train_batch_size` to be a multiple of `num_generations`.
+We will change the batch size of 1 to the `num_generations` of 2
+-------------------- Question:
+A concert ticket costs $40. Mr. Benson bought 12 tickets and received a 5% discount for every ticket bought that exceeds 10. How much did Mr. Benson pay in all? 
+Answer:
+476 
+Response:
+<reasoning>
+Mr. Benson bought 12 concert tickets. The first 10 tickets were bought at full price, and the additional 2 tickets received a 5% discount.
+
+The cost of each ticket at full price is $40. The cost of each discounted ticket is $40 * (1 - 0.05) = $40 * 0.95 = $38.
+
+So, Mr. Benson paid $40 * 10 = $400 for the first 10 tickets.
+And for the additional 2 tickets, he paid $38 * 2 = $76.
+
+Therefore, the total amount Mr. Benson paid is $400 + $76 = $476.
+</reasoning>
+<answer>
+Mr. Benson paid a total of $476 for the concert tickets.
+</answer> 
+Extracted:
+Mr. Benson paid a total of $476 for the concert tickets.
