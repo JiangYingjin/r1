@@ -1,7 +1,6 @@
 import torch
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
-from utils import extract_xml_answer, extract_hash_answer, SYSTEM_PROMPT
 from reward_fn import (
     xmlcount_reward_func,
     soft_format_reward_func,
@@ -14,9 +13,11 @@ from data_preparation import get_gsm8k_questions
 max_seq_length = 3072  # Can increase for longer reasoning traces
 max_completion_length = 512
 max_prompt_length = max_seq_length - max_completion_length
-lora_rank = 64  # Larger rank = smarter, but slower
+lora_rank = 64  # Larger rank = smarter, but slower, Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
 total_steps = 100
 # total_steps = 250
+random_state = 3407  # seed
+
 
 # model
 model, tokenizer = FastLanguageModel.from_pretrained(
@@ -25,14 +26,14 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     load_in_4bit=True,  # False for LoRA 16bit
     fast_inference=True,  # Enable vLLM fast inference
     max_lora_rank=lora_rank,
-    gpu_memory_utilization=0.9,  # Reduce if out of memory
+    gpu_memory_utilization=0.85,  # Reduce if out of memory
     dtype=torch.bfloat16,
 )
 
 # peft model
 model = FastLanguageModel.get_peft_model(
     model,
-    r=lora_rank,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
+    r=lora_rank,
     target_modules=[
         "q_proj",
         "k_proj",
@@ -72,7 +73,6 @@ training_args = GRPOConfig(
     save_steps=total_steps,
     max_grad_norm=0.1,
     report_to="wandb",  # Can use Weights & Biases
-    # report_to="none",  # Can use Weights & Biases
     output_dir="outputs",
 )
 

@@ -1,7 +1,7 @@
 export HF_HUB_ENABLE_HF_TRANSFER=0
 export VLLM_USE_V1=0
 
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=1
 
 script_name=qwen2_5_\(3b\)_grpo.py
 # script_name=t1.py
