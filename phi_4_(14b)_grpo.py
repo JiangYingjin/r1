@@ -33,8 +33,9 @@ Load up `Phi-4 14B`, and set parameters
 from unsloth import FastLanguageModel, is_bfloat16_supported
 import torch
 
-max_seq_length = 1024  # Can increase for longer reasoning traces
+# max_seq_length = 1024  # Can increase for longer reasoning traces
 # max_seq_length = 2048  # Can increase for longer reasoning traces
+max_seq_length = 768  # Can increase for longer reasoning traces
 # max_seq_length = 512  # Can increase for longer reasoning traces
 lora_rank = 16  # Larger rank = smarter, but slower
 
