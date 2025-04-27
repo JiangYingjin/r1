@@ -61,15 +61,13 @@ Visit our docs for all our [model uploads](https://docs.unsloth.ai/get-started/a
 Load up `Qwen 2.5 3B Instruct`, and set parameters
 """
 
-import os
-
-os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
-os.environ["VLLM_USE_V1"] = "0"
-
 from unsloth import FastLanguageModel, is_bfloat16_supported
 import torch
 
-max_seq_length = 1024  # Can increase for longer reasoning traces
+max_seq_length = 3072  # Can increase for longer reasoning traces
+max_completion_length = 512
+max_prompt_length = max_seq_length - max_completion_length
+# max_seq_length = 1024  # Can increase for longer reasoning traces
 lora_rank = 64  # Larger rank = smarter, but slower
 
 model, tokenizer = FastLanguageModel.from_pretrained(
@@ -79,7 +77,8 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     load_in_4bit=True,  # False for LoRA 16bit
     fast_inference=True,  # Enable vLLM fast inference
     max_lora_rank=lora_rank,
-    gpu_memory_utilization=0.8,  # Reduce if out of memory
+    gpu_memory_utilization=0.4,  # Reduce if out of memory
+    # gpu_memory_utilization=0.8,  # Reduce if out of memory
 )
 
 model = FastLanguageModel.get_peft_model(
@@ -224,6 +223,9 @@ Now set up GRPO Trainer and all configurations!
 
 from trl import GRPOConfig, GRPOTrainer
 
+total_steps = 100
+# total_steps = 250
+
 training_args = GRPOConfig(
     use_vllm=True,  # use vLLM for fast inference!
     learning_rate=5e-6,
@@ -239,11 +241,11 @@ training_args = GRPOConfig(
     per_device_train_batch_size=1,
     gradient_accumulation_steps=1,  # Increase to 4 for smoother training
     num_generations=8,  # Decrease if out of memory
-    max_prompt_length=256,
-    max_completion_length=200,
+    max_prompt_length=max_prompt_length,
+    max_completion_length=max_completion_length,
     # num_train_epochs = 1, # Set to 1 for a full training run
-    max_steps=250,
-    save_steps=250,
+    max_steps=total_steps,
+    save_steps=total_steps,
     max_grad_norm=0.1,
     report_to="none",  # Can use Weights & Biases
     output_dir="outputs",
