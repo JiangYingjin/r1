@@ -77,8 +77,7 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     load_in_4bit=True,  # False for LoRA 16bit
     fast_inference=True,  # Enable vLLM fast inference
     max_lora_rank=lora_rank,
-    gpu_memory_utilization=0.7,  # Reduce if out of memory
-    # gpu_memory_utilization=0.8,  # Reduce if out of memory
+    gpu_memory_utilization=0.9,  # Reduce if out of memory
 )
 
 model = FastLanguageModel.get_peft_model(
@@ -97,12 +96,6 @@ model = FastLanguageModel.get_peft_model(
     use_gradient_checkpointing="unsloth",  # Enable long context finetuning
     random_state=3407,
 )
-
-"""### Data Prep
-<a name="Data"></a>
-
-We directly leverage [@willccbb](https://gist.github.com/willccbb/4676755236bb08cab5f4e54a0475d6fb) for data prep and all reward functions. You are free to create your own!
-"""
 
 import re
 from datasets import load_dataset, Dataset
@@ -243,11 +236,12 @@ training_args = GRPOConfig(
     num_generations=8,  # Decrease if out of memory
     max_prompt_length=max_prompt_length,
     max_completion_length=max_completion_length,
-    # num_train_epochs = 1, # Set to 1 for a full training run
-    max_steps=total_steps,
+    num_train_epochs=1,  # Set to 1 for a full training run
+    # max_steps=total_steps,
     save_steps=total_steps,
     max_grad_norm=0.1,
-    report_to="none",  # Can use Weights & Biases
+    report_to="wandb",  # Can use Weights & Biases
+    # report_to="none",  # Can use Weights & Biases
     output_dir="outputs",
 )
 
