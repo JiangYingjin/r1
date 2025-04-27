@@ -64,30 +64,27 @@ Load up `Qwen 2.5 3B Instruct`, and set parameters
 from unsloth import FastLanguageModel, is_bfloat16_supported
 import torch
 
-max_seq_length = 512  # Can increase for longer reasoning traces
-# max_seq_length = 1024  # Can increase for longer reasoning traces
-lora_rank = 8  # Larger rank = smarter, but slower
-# lora_rank = 16  # Larger rank = smarter, but slower
-# lora_rank = 64  # Larger rank = smarter, but slower
+max_seq_length = 1024  # Can increase for longer reasoning traces
+lora_rank = 64  # Larger rank = smarter, but slower
 
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="Qwen/Qwen2.5-3B-Instruct",
     max_seq_length=max_seq_length,
     load_in_4bit=True,  # False for LoRA 16bit
-    # fast_inference=True,  # Enable vLLM fast inference
+    fast_inference=True,  # Enable vLLM fast inference
     max_lora_rank=lora_rank,
-    gpu_memory_utilization=0.4,  # Reduce if out of memory
+    gpu_memory_utilization=0.8,  # Reduce if out of memory
 )
 
 model = FastLanguageModel.get_peft_model(
     model,
     r=lora_rank,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
     target_modules=[
-        # "q_proj",
-        # "k_proj",
-        # "v_proj",
-        # "o_proj",
-        # "gate_proj",
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
         "up_proj",
         "down_proj",
     ],  # Remove QKVO if out of memory
@@ -222,25 +219,20 @@ Now set up GRPO Trainer and all configurations!
 from trl import GRPOConfig, GRPOTrainer
 
 training_args = GRPOConfig(
-    # use_vllm=True,  # use vLLM for fast inference!
-    learning_rate=1e-4,
-    # learning_rate=5e-6,
+    use_vllm=True,  # use vLLM for fast inference!
+    learning_rate=5e-6,
     adam_beta1=0.9,
     adam_beta2=0.99,
     weight_decay=0.1,
     warmup_ratio=0.1,
     lr_scheduler_type="cosine",
-    optim="adafactor",
-    # optim="adamw_8bit",
+    optim="adamw_8bit",
     logging_steps=1,
     bf16=is_bfloat16_supported(),
     fp16=not is_bfloat16_supported(),
     per_device_train_batch_size=1,
     gradient_accumulation_steps=1,  # Increase to 4 for smoother training
-    num_generations=2,  # Decrease if out of memory
-    # num_generations=3,  # Decrease if out of memory
-    # num_generations=4,  # Decrease if out of memory
-    # num_generations=8,  # Decrease if out of memory
+    num_generations=8,  # Decrease if out of memory
     max_prompt_length=256,
     max_completion_length=200,
     # num_train_epochs = 1, # Set to 1 for a full training run
