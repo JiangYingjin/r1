@@ -63,6 +63,7 @@ Load up `Qwen 2.5 3B Instruct`, and set parameters
 
 import os
 
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
 os.environ["VLLM_USE_V1"] = "0"
 
 from unsloth import FastLanguageModel, is_bfloat16_supported
