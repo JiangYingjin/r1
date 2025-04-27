@@ -30,13 +30,16 @@ Visit our docs for all our [model uploads](https://docs.unsloth.ai/get-started/a
 Load up `Phi-4 14B`, and set parameters
 """
 
+import os
+
+os.environ["VLLM_USE_V1"] = "0"
+
 from unsloth import FastLanguageModel, is_bfloat16_supported
 import torch
 
 # max_seq_length = 1024  # Can increase for longer reasoning traces
 # max_seq_length = 2048  # Can increase for longer reasoning traces
-max_seq_length = 768  # Can increase for longer reasoning traces
-# max_seq_length = 512  # Can increase for longer reasoning traces
+max_seq_length = 512  # Can increase for longer reasoning traces
 lora_rank = 16  # Larger rank = smarter, but slower
 
 model, tokenizer = FastLanguageModel.from_pretrained(
