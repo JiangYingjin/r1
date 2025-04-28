@@ -31,7 +31,7 @@ log_path=${exp_dir}/out.log
 # 创建实验目录
 mkdir -p ${exp_dir} ${code_dir} ${ckpt_dir}
 # 保存代码至实验目录
-rsync -avzP ${CWD}/*.py ${CWD}/scripts ${CWD}/configs ${code_dir}
+rsync -az --partial ${CWD}/*.py ${CWD}/scripts ${CWD}/configs ${code_dir}
 # 将实验描述写入README.md
 echo "$EXP_DESC" > ${exp_dir}/README.md
 
@@ -49,7 +49,7 @@ while :; do
 done &
 
 # 模型权重检查点目录有新增文件则上传（等待10秒后）
-inotifywait -m -e create "${ckpt_dir}" | while read dir action file; do
+inotifywait -m -e create "${ckpt_dir}" > /dev/null | while read dir action file; do
     sleep 10; upload_to_baidu "${dir}${file}" "${exp_dir_baidu}/ckpt" && rm -rf "${dir}${file}"
 done &
 
