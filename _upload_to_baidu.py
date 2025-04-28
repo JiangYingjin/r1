@@ -7,11 +7,8 @@ import shutil
 def upload_to_baidu(local_path, remote_path):
     """上传文件夹到百度网盘"""
     cmd = f"baidu u {local_path} {remote_path}"
-    with open("_upload.log", "a") as log_file:
-        print(f"执行命令: {cmd}\n")
-        result = subprocess.run(
-            cmd, shell=True, stdout=log_file, stderr=log_file, text=True
-        )
+    print(f"执行命令: {cmd}\n")
+    result = subprocess.run(cmd, shell=True, text=True)
     if result.returncode == 0:
         print(f"上传成功: {local_path} -> {remote_path}")
         # 上传成功后直接删除文件夹
