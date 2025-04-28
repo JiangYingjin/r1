@@ -1,4 +1,5 @@
 import torch
+import yaml
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
 from reward_fn import (
@@ -9,35 +10,40 @@ from reward_fn import (
     correctness_reward_func,
 )
 from data_preparation import get_gsm8k_questions
-from args import get_args
+
+
+def load_config(config_path="configs/train_config.yml"):
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+    return config
 
 
 def main():
-    args = get_args()
+    config = load_config()
 
-    exp_name = args.exp_name
-    model_name = args.model_name
-    ckpt_out_dir = (
-        f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt"
-    )
-
-    max_seq_length = args.max_prompt_length + args.max_completion_length
+    exp_name = config["experiment"]["name"]
+    model_name = config["experiment"]["model"]
+    output_root = config["paths"]["output_root"]
+    ckpt_out_dir = f"{output_root}/exp/{model_name.replace('/','_')}/{exp_name}/ckpt"
 
     # model
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_name,
-        max_seq_length=max_seq_length,
+        max_seq_length=config["sequence"]["max_prompt_length"]
+        + config["sequence"]["max_completion_length"],
         load_in_4bit=True,  # False for LoRA 16bit
         fast_inference=True,  # Enable vLLM fast inference
-        max_lora_rank=args.lora_rank,
-        gpu_memory_utilization=args.gpu_memory_utilization,  # Reduce if out of memory
+        max_lora_rank=config["lora"]["rank"],
+        gpu_memory_utilization=config["gpu"][
+            "memory_utilization"
+        ],  # Reduce if out of memory
         dtype=torch.bfloat16,
     )
 
     # peft model
     model = FastLanguageModel.get_peft_model(
         model,
-        r=args.lora_rank,
+        r=config["lora"]["rank"],
         target_modules=[
             "q_proj",
             "k_proj",
@@ -47,9 +53,9 @@ def main():
             "up_proj",
             "down_proj",
         ],  # Remove QKVO if out of memory
-        lora_alpha=args.lora_rank,
+        lora_alpha=config["lora"]["rank"],
         use_gradient_checkpointing="unsloth",  # Enable long context finetuning
-        random_state=args.random_state,
+        random_state=config["random_state"],
     )
 
     dataset = get_gsm8k_questions()
@@ -72,12 +78,13 @@ def main():
             fp16=not is_bfloat16_supported(),
             per_device_train_batch_size=1,
             gradient_accumulation_steps=1,  # Increase to 4 for smoother training
-            num_generations=args.grpo_num_generations,  # Decrease if out of memory
-            max_prompt_length=args.max_prompt_length,
-            max_completion_length=args.max_completion_length,
-            # num_train_epochs=1,  # Set to 1 for a full training run
-            max_steps=args.total_steps,
-            save_steps=args.save_steps,
+            num_generations=config["training"][
+                "grpo_num_generations"
+            ],  # Decrease if out of memory
+            max_prompt_length=config["sequence"]["max_prompt_length"],
+            max_completion_length=config["sequence"]["max_completion_length"],
+            max_steps=config["training"]["total_steps"],
+            save_steps=config["training"]["save_steps"],
             max_grad_norm=0.1,
             output_dir=ckpt_out_dir,
             report_to="wandb",  # Can use Weights & Biases
