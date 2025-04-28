@@ -14,7 +14,7 @@ paths:
 training:
   total_steps: 4000
   save_steps: 200
-  grpo_num_generations: 8
+  grpo_num_generations: 8   # 若 OOM，可降低此值
 
 # LoRA 参数
 lora:
@@ -27,7 +27,7 @@ sequence:
 
 # GPU 参数
 gpu:
-  memory_utilization: 0.9  # 如果内存不足，可以降低此值
+  memory_utilization: 0.9  # 若 OOM，可降低此值
   visible_devices: 1
 
 # 随机种子

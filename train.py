@@ -1,5 +1,6 @@
 import torch
 import yaml
+import wandb
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
 from reward_fn import (
@@ -26,6 +27,14 @@ def main():
     output_root = config["paths"]["output_root"]
     ckpt_out_dir = f"{output_root}/exp/{model_name.replace('/','_')}/{exp_name}/ckpt"
 
+    # 初始化 wandb
+    wandb.init(
+        project="r1",
+        name=exp_name,
+        notes=config["experiment"]["description"],
+        config=config,
+    )
+
     # model
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_name,
@@ -34,9 +43,7 @@ def main():
         load_in_4bit=True,  # False for LoRA 16bit
         fast_inference=True,  # Enable vLLM fast inference
         max_lora_rank=config["lora"]["rank"],
-        gpu_memory_utilization=config["gpu"][
-            "memory_utilization"
-        ],  # Reduce if out of memory
+        gpu_memory_utilization=config["gpu"]["memory_utilization"],
         dtype=torch.bfloat16,
     )
 
@@ -78,16 +85,14 @@ def main():
             fp16=not is_bfloat16_supported(),
             per_device_train_batch_size=1,
             gradient_accumulation_steps=1,  # Increase to 4 for smoother training
-            num_generations=config["training"][
-                "grpo_num_generations"
-            ],  # Decrease if out of memory
+            num_generations=config["training"]["grpo_num_generations"],
             max_prompt_length=config["sequence"]["max_prompt_length"],
             max_completion_length=config["sequence"]["max_completion_length"],
             max_steps=config["training"]["total_steps"],
             save_steps=config["training"]["save_steps"],
             max_grad_norm=0.1,
             output_dir=ckpt_out_dir,
-            report_to="wandb",  # Can use Weights & Biases
+            report_to="wandb",
         ),
         reward_funcs=[
             xmlcount_reward_func,
