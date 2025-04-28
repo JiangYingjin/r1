@@ -1,0 +1,33 @@
+# 实验配置
+experiment:
+  model: "unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit"
+  description: |
+    详细的实验描述
+
+# 训练参数
+training:
+  total_steps: 4000
+  save_steps: 200
+  grpo_num_generations: 8
+
+# LoRA 参数
+lora:
+  rank: 64  # 更大的秩 = 更智能，但更慢，建议选择 8, 16, 32, 64, 128
+
+# 序列长度参数
+sequence:
+  max_prompt_length: 512
+  max_completion_length: 2560
+
+# GPU 参数
+gpu:
+  memory_utilization: 0.9  # 如果内存不足，可以降低此值
+  visible_devices: 1
+
+# 随机种子
+random_state: 3407
+
+# 环境变量
+environment:
+  hf_hub_enable_hf_transfer: 0
+  vllm_use_v1: 0 

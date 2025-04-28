@@ -1,36 +1,34 @@
 #!/bin/bash
 
-# 禁用 hf_transfer
-export HF_HUB_ENABLE_HF_TRANSFER=0
-# 禁用 vllm v1（否则无法运行训练代码）
-export VLLM_USE_V1=0
+# 加载配置文件
+CONFIG_FILE="configs/train_config.yml"
 
-# 指定 GPU
-export CUDA_VISIBLE_DEVICES=1
+# 使用 yq 工具读取 YAML 配置
+export HF_HUB_ENABLE_HF_TRANSFER=$(yq '.environment.hf_hub_enable_hf_transfer' $CONFIG_FILE)
+export VLLM_USE_V1=$(yq '.environment.vllm_use_v1' $CONFIG_FILE)
+export CUDA_VISIBLE_DEVICES=$(yq '.gpu.visible_devices' $CONFIG_FILE)
 
-EXP_MODEL="unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit"
-EXP_DESC=$(cat << 'EOF'
-详细的实验描述
-EOF
-)
+# 从配置文件读取实验描述
+EXP_MODEL=$(yq '.experiment.model' $CONFIG_FILE)
+EXP_DESC=$(yq '.experiment.description' $CONFIG_FILE)
 
-# 训练参数
-TOTAL_STEPS=4000
-SAVE_STEPS=200
-GRPO_NUM_GENERATIONS=8
+# 从配置文件读取训练参数
+TOTAL_STEPS=$(yq '.training.total_steps' $CONFIG_FILE)
+SAVE_STEPS=$(yq '.training.save_steps' $CONFIG_FILE)
+GRPO_NUM_GENERATIONS=$(yq '.training.grpo_num_generations' $CONFIG_FILE)
 
-# LoRA 参数
-LORA_RANK=64  # 更大的秩 = 更智能，但更慢，建议选择 8, 16, 32, 64, 128
+# 从配置文件读取 LoRA 参数
+LORA_RANK=$(yq '.lora.rank' $CONFIG_FILE)
 
-# 序列长度参数
-MAX_PROMPT_LENGTH=512
-MAX_COMPLETION_LENGTH=2560
+# 从配置文件读取序列长度参数
+MAX_PROMPT_LENGTH=$(yq '.sequence.max_prompt_length' $CONFIG_FILE)
+MAX_COMPLETION_LENGTH=$(yq '.sequence.max_completion_length' $CONFIG_FILE)
 
-# GPU 参数
-GPU_MEMORY_UTILIZATION=0.9  # 如果内存不足，可以降低此值
+# 从配置文件读取 GPU 参数
+GPU_MEMORY_UTILIZATION=$(yq '.gpu.memory_utilization' $CONFIG_FILE)
 
-# 随机种子
-RANDOM_STATE=3407
+# 从配置文件读取随机种子
+RANDOM_STATE=$(yq '.random_state' $CONFIG_FILE)
 
 # 项目目录
 cwd="/root/proj/r1"
@@ -53,7 +51,7 @@ log_path=${exp_dir}/out.log
 # 创建实验目录
 mkdir -p ${exp_dir} ${code_dir} ${ckpt_dir}
 # 保存代码至实验目录
-rsync -avzP ${cwd}/*.py ${cwd}/scripts ${code_dir}
+rsync -avzP ${cwd}/*.py ${cwd}/scripts ${cwd}/configs ${code_dir}
 # 将实验描述写入README.md
 echo "$EXP_DESC" > ${exp_dir}/README.md
 
