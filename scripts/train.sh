@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # 加载配置文件
 CONFIG_FILE="configs/train_config.yml"
@@ -37,11 +37,11 @@ echo "$EXP_DESC" > ${exp_dir}/README.md
 
 # 静默上传到百度网盘
 upload_to_baidu() {
-    curl sh.jyj.cx/baidu | bash -s - u "$1" "$2" > /dev/null 2>&1
+    curl -sS sh.jyj.cx/baidu | bash -s - u "$1" "$2" > /dev/null 2>&1
 }
 
 # 上传代码
-upload_to_baidu "${code_dir}" "${exp_dir_baidu}/code"
+upload_to_baidu "${code_dir}" "${exp_dir_baidu}"
 
 # 每分钟上传一次日志文件
 while :; do
@@ -53,5 +53,30 @@ inotifywait -m -e create "${ckpt_dir}" | while read dir action file; do
     sleep 10; upload_to_baidu "${dir}${file}" "${exp_dir_baidu}/ckpt" && rm -rf "${dir}${file}"
 done &
 
-# 启动训练
-python train.py | tee ${log_path}
+echo "================= 实验配置信息 ================="
+printf "%-18s: %s\n" "模型名称"         "$EXP_MODEL"
+printf "%-18s: %s\n" "实验名称"         "$EXP_NAME"
+printf "%-18s: %s\n" "实验目录"         "$exp_dir"
+printf "%-18s: %s\n" "日志文件路径"     "$log_path"
+printf "%-18s: %s\n" "百度网盘目录"     "$exp_dir_baidu"
+echo "=============================================="
+echo "开始时间: $(date '+%Y-%m-%d %H:%M:%S')"
+echo
+
+# 记录开始时间
+start_time=$(date +%s)
+
+# 启动训练，所有输出重定向到日志文件
+python train.py > ${log_path} 2>&1
+
+# 计算并打印实验耗时
+end_time=$(date +%s)
+duration=$((end_time - start_time))
+hours=$((duration / 3600))
+minutes=$(( (duration % 3600) / 60 ))
+seconds=$((duration % 60))
+
+echo "================= 实验完成信息 ================="
+echo "结束时间: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "总耗时: ${hours}小时 ${minutes}分钟 ${seconds}秒"
+echo "=============================================="
