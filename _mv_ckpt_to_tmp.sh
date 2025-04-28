@@ -1,5 +1,5 @@
 OUTPUT_DIR="/root/proj/r1/outputs"
-TARGET_DIR="$HOME/lanyun-tmp/outputs"
+TARGET_DIR="$HOME/lanyun-fs/outputs"
 
 mkdir -p "$TARGET_DIR"
 
