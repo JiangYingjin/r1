@@ -35,6 +35,20 @@ rsync -az --partial ${CWD}/*.py ${CWD}/scripts ${CWD}/configs ${code_dir}
 # 将实验描述写入README.md
 echo "$EXP_DESC" > ${exp_dir}/README.md
 
+
+echo "================= 实验配置信息 ================="
+printf "实验名称　　      : %s\n" "$EXP_NAME"
+printf "实验描述　　      : %s\n" "$EXP_DESC"
+# printf "模型名称　　      : %s\n" "$EXP_MODEL"
+printf "日志文件路径      : \033[1;32m%s\033[0m\n" "$log_path"
+printf "使用的CUDA显卡    : %s\n" "$CUDA_VISIBLE_DEVICES"
+printf "开始时间　　      : %s\n" "$(date '+%Y-%m-%d %H:%M:%S')"
+printf "实验目录　　      : %s\n" "$exp_dir"
+printf "百度网盘目录      : %s\n" "$exp_dir_baidu"
+echo "=============================================="
+echo
+
+
 # 静默上传到百度网盘
 upload_to_baidu() {
     curl -sS sh.jyj.cx/baidu | bash -s - u "$1" "$2" > /dev/null 2>&1
@@ -49,19 +63,10 @@ while :; do
 done &
 
 # 模型权重检查点目录有新增文件则上传（等待10秒后）
-inotifywait -m -e create "${ckpt_dir}" > /dev/null | while read dir action file; do
+inotifywait -m -e create "${ckpt_dir}" | while read dir action file; do
     sleep 10; upload_to_baidu "${dir}${file}" "${exp_dir_baidu}/ckpt" && rm -rf "${dir}${file}"
 done &
 
-echo "================= 实验配置信息 ================="
-printf "%-18s: %s\n" "模型名称"         "$EXP_MODEL"
-printf "%-18s: %s\n" "实验名称"         "$EXP_NAME"
-printf "%-18s: %s\n" "实验目录"         "$exp_dir"
-printf "%-18s: \033[1;32m%s\033[0m\n" "日志文件路径"     "$log_path"
-printf "%-18s: %s\n" "百度网盘目录"     "$exp_dir_baidu"
-echo "=============================================="
-echo "开始时间: $(date '+%Y-%m-%d %H:%M:%S')"
-echo
 
 # 记录开始时间
 start_time=$(date +%s)
