@@ -7,7 +7,6 @@ import shutil
 def upload_to_baidu(local_path, remote_path):
     """上传文件夹到百度网盘"""
     cmd = f"baidu u {local_path} {remote_path}"
-    print(f"执行命令: {cmd}")
     with open("_upload.log", "a") as log_file:
         print(f"执行命令: {cmd}\n")
         result = subprocess.run(
@@ -15,12 +14,9 @@ def upload_to_baidu(local_path, remote_path):
         )
     if result.returncode == 0:
         print(f"上传成功: {local_path} -> {remote_path}")
-        # 上传成功后移动文件夹
-        uploaded_dir = os.path.expanduser("~/lanyun-fs/outputs/uploaded")
-        os.makedirs(uploaded_dir, exist_ok=True)
-        dest_path = os.path.join(uploaded_dir, os.path.basename(local_path))
-        shutil.move(local_path, dest_path)
-        print(f"已移动到: {dest_path}")
+        # 上传成功后直接删除文件夹
+        shutil.rmtree(local_path)
+        print(f"已删除: {local_path}")
     else:
         print(f"上传失败: {local_path}")
         print(f"错误信息: {result.stderr}")
