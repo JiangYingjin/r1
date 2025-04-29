@@ -79,15 +79,15 @@ echo
 
 # 静默上传到百度网盘
 upload_to_baidu() {
-    curl -sS sh.jyj.cx/baidu | bash -s - u "$1" "$2" > /dev/null 2>&1
+    curl -sS sh.jyj.cx/baidu | bash -s - u "$@" > /dev/null 2>&1
 }
 
 # 上传代码
-upload_to_baidu "${code_dir}" "${exp_dir_baidu}"
+upload_to_baidu "${code_dir}" "${exp_dir_baidu}" -f
 
 # 每分钟上传一次日志文件
 while :; do
-    sleep 60; upload_to_baidu "${log_path}" "${exp_dir_baidu}"
+    sleep 60; upload_to_baidu "${log_path}" "${exp_dir_baidu}" -f
 done &
 
 # 模型权重检查点目录有新增文件则上传（等待10秒后）
