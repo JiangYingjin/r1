@@ -6,7 +6,35 @@ CONFIG_FILE="configs/train_config.yml"
 # 使用 yq 工具读取 YAML 配置
 export HF_HUB_ENABLE_HF_TRANSFER=$(yq '.environment.hf_hub_enable_hf_transfer' $CONFIG_FILE)
 export VLLM_USE_V1=$(yq '.environment.vllm_use_v1' $CONFIG_FILE)
-export CUDA_VISIBLE_DEVICES=$(yq '.gpu.visible_devices' $CONFIG_FILE)
+
+# 从配置文件读取 GPU 设备设置
+VISIBLE_DEVICES=$(yq '.gpu.visible_devices' $CONFIG_FILE)
+
+# 如果 visible_devices 为 -1，则自动选择 GPU
+if [ "$VISIBLE_DEVICES" = "-1" ]; then
+    # 获取所有 CUDA 设备的内存使用情况
+    GPU_INFO=$(nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv,noheader,nounits)
+    
+    # 遍历每个 GPU，找到第一个内存使用率低于 10% 的设备
+    while IFS=, read -r index used total; do
+        # 计算内存使用率
+        usage_percent=$((used * 100 / total))
+        if [ $usage_percent -lt 10 ]; then
+            VISIBLE_DEVICES=$index
+            break
+        fi
+    done <<< "$GPU_INFO"
+    
+    # 如果没有找到合适的设备，报错并退出
+    if [ -z "$VISIBLE_DEVICES" ]; then
+        echo "错误：没有找到内存使用率低于 10% 的 GPU 设备！"
+        echo "当前 GPU 使用情况："
+        nvidia-smi
+        exit 1
+    fi
+fi
+
+export CUDA_VISIBLE_DEVICES=$VISIBLE_DEVICES
 
 # 从配置文件读取实验描述
 EXP_MODEL=$(yq '.experiment.model' $CONFIG_FILE)

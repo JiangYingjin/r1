@@ -2,6 +2,19 @@ import re
 from utils import extract_xml_answer, extract_hash_answer
 
 
+"""
+Correctness_reward_func – 奖励精确的标签匹配。
+
+int_reward_func – 鼓励仅回答整数。
+
+soft_format_reward_func – 检查结构但允许轻微的换行不匹配。
+
+strict_format_reward_func – 确保响应结构与提示相匹配，包括换行符。
+
+xmlcount_reward_func – 确保响应中每个 XML 标签恰好有一个。
+"""
+
+
 # Reward functions
 def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[float]:
     responses = [completion[0]["content"] for completion in completions]
