@@ -2,3 +2,4 @@ vLLM
 Unsloth
 Unsloth_Zoo
 yq
+wandb
