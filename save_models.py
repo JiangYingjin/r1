@@ -6,6 +6,26 @@
 We also support saving to `float16` directly. Select `merged_16bit` for float16 or `merged_4bit` for int4. We also allow `lora` adapters as a fallback. Use `push_to_hub_merged` to upload to your Hugging Face account! You can go to https://huggingface.co/settings/tokens for your personal tokens.
 """
 
+from unsloth import FastLanguageModel
+import torch
+
+# 加载基础模型
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name="/root/lanyun-tmp/r1/exp/unsloth_Qwen2.5-3B-Instruct-unsloth-bnb-4bit/gpu0.8_grpo6_2/ckpt/checkpoint-4000",
+    # model_name="unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit",
+    # dtype=torch.bfloat16,
+)
+
+# 加载 LoRA 适配器
+# model = FastLanguageModel.get_peft_model(model)
+
+# 保存为 GGUF 格式 (q4_k_m 量化)
+model.save_pretrained_gguf(
+    "gguf_model",
+    tokenizer,
+    quantization_method="q4_k_m",
+)  # 输出目录
+
 # Merge to 16bit
 if False:
     model.save_pretrained_merged(
@@ -69,7 +89,7 @@ if False:
 # Save to q4_k_m GGUF
 if False:
     model.save_pretrained_gguf("model", tokenizer, quantization_method="q4_k_m")
-if False:
+if 1:
     model.push_to_hub_gguf(
         "hf/model", tokenizer, quantization_method="q4_k_m", token=""
     )
