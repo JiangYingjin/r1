@@ -9,3 +9,4 @@ logs
 llama.cpp
 gguf_model
 hf
+ollama

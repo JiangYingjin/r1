@@ -1,0 +1,15 @@
+{
+    "model_name": "r1",
+    "system": "<|im_start|>system\n",
+    "meta_instruction": "Respond in the following format:\n<think>\n...\n</think>\n<answer>\n...\n</answer>",
+    "eosys": "<|im_end|>\n",
+    "user": "<|im_start|>user\n",
+    "eoh": "<|im_end|>\n",
+    "assistant": "<|im_start|>assistant\n",
+    "eoa": "<|im_end|>",
+    "separator": "\n",
+    "capability": "chat",
+    "stop_words": [
+        "<|im_end|>"
+    ]
+}

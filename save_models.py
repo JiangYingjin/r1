@@ -8,6 +8,7 @@ We also support saving to `float16` directly. Select `merged_16bit` for float16 
 
 from unsloth import FastLanguageModel
 import torch
+from pathlib import Path
 
 # 加载基础模型
 model, tokenizer = FastLanguageModel.from_pretrained(
@@ -16,15 +17,14 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     # dtype=torch.bfloat16,
 )
 
-# 加载 LoRA 适配器
-# model = FastLanguageModel.get_peft_model(model)
+exit()
 
-# 保存为 GGUF 格式 (q4_k_m 量化)
+# 保存为 GGUF 格式 并进行 q4_k_m 量化（经测试可用）
 model.save_pretrained_gguf(
     "gguf_model",
     tokenizer,
     quantization_method="q4_k_m",
-)  # 输出目录
+)
 
 # Merge to 16bit
 if False:
