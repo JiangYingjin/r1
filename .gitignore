@@ -7,3 +7,5 @@ wandb
 gemma-3
 logs
 llama.cpp
+gguf_model
+hf
