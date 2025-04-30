@@ -6,3 +6,4 @@ outputs
 wandb
 gemma-3
 logs
+llama.cpp
