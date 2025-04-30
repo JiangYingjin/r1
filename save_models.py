@@ -7,17 +7,32 @@ We also support saving to `float16` directly. Select `merged_16bit` for float16 
 """
 
 from unsloth import FastLanguageModel
-import torch
-from pathlib import Path
 
-# 加载基础模型
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="/root/lanyun-tmp/r1/exp/unsloth_Qwen2.5-3B-Instruct-unsloth-bnb-4bit/gpu0.8_grpo6_2/ckpt/checkpoint-4000",
-    # model_name="unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit",
-    # dtype=torch.bfloat16,
-)
+for step in range(400, 4001, 200):
+    print(f"正在处理 checkpoint-{step}...")
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=f"/root/lanyun-tmp/r1/exp/unsloth_Qwen2.5-3B-Instruct-unsloth-bnb-4bit/gpu0.8_grpo6_2/ckpt/checkpoint-{step}",
+    )
+    print(f"成功加载 checkpoint-{step} 模型")
+    
+    save_path = f"ckpt_merged/{step}"
+    print(f"正在将模型保存到 {save_path}，使用 merged_16bit 格式...")
+    model.save_pretrained_merged(
+        save_path,
+        tokenizer,
+        save_method="merged_16bit",
+    )
+    print(f"checkpoint-{step} 已成功保存为 merged_16bit 格式")
+
+"""
+merged_16bit (你使用的): 合并后保存为 16-bit (通常是 float16 或 bfloat16)。这是一个很好的平衡点，模型大小适中，精度损失小，加载后可以直接使用标准 Transformers 库进行推理。
+merged_4bit: 合并后保存为 4-bit 量化模型。最节省空间，推理速度最快（在支持的环境下）。适用于部署资源受限（显存、磁盘）且对轻微精度下降不敏感的场景。这是 Unsloth 推荐的部署方式之一。
+merged_8bit: 合并后保存为 8-bit 量化模型。介于 16-bit 和 4-bit 之间，是空间、速度和精度的一个折中选项。
+lora: 只保存适配器。适用于 分享微调结果（只需分享小小的适配器文件），或者希望保留基础模型不变，在不同任务间切换适配器的场景。加载推理时需要额外步骤来合并。
+"""
 
 exit()
+
 
 # 保存为 GGUF 格式 并进行 q4_k_m 量化（经测试可用）
 model.save_pretrained_gguf(
@@ -25,6 +40,7 @@ model.save_pretrained_gguf(
     tokenizer,
     quantization_method="q4_k_m",
 )
+
 
 # Merge to 16bit
 if False:
