@@ -10,3 +10,4 @@ llama.cpp
 gguf_model
 hf
 ollama
+ckpt_merged
