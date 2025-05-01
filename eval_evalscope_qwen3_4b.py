@@ -1,7 +1,7 @@
 from evalscope import TaskConfig, run_task
 
 task_cfg = TaskConfig(
-    model="Qwen3-4B",
+    model="Qwen/Qwen3-4B",
     api_url="http://127.0.0.1:23333/v1/chat/completions",
     api_key="sk-jiangyj",
     eval_type="service",
