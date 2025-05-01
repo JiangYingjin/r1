@@ -8,7 +8,7 @@ We also support saving to `float16` directly. Select `merged_16bit` for float16 
 
 from unsloth import FastLanguageModel
 
-for step in range(400, 4001, 200):
+for step in range(2000, 4001, 200):
     print(f"正在处理 checkpoint-{step}...")
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=f"/root/lanyun-tmp/r1/exp/unsloth_Qwen2.5-3B-Instruct-unsloth-bnb-4bit/gpu0.8_grpo6_2/ckpt/checkpoint-{step}",
