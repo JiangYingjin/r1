@@ -14,7 +14,7 @@ task_cfg = TaskConfig(
             "filters": {"remove_until": "</think>"},  # 过滤掉思考的内容
         }
     },
-    eval_batch_size=128,
+    eval_batch_size=32,
     generation_config={
         "max_tokens": 30000,  # 最大生成token数，建议设置为较大值避免输出截断
         "temperature": 0.6,  # 采样温度 (qwen 报告推荐值)
@@ -22,10 +22,11 @@ task_cfg = TaskConfig(
         "top_k": 20,  # top-k采样 (qwen 报告推荐值)
         "n": 1,  # 每个请求产生的回复数量
     },
-    timeout=60000,  # 超时时间
+    timeout=3 * 60 * 000,  # 超时时间
     stream=True,  # 是否使用流式输出
+    work_dir="eval/qwen3_4b",  # 评估过程保存路径
+    outputs="eval/qwen3_4b",  # 评估结果保存路径
     # limit=100,  # 设置为100条数据进行测试
-    work_dir="eval/qwen3_4b",  # 评估结果保存路径
 )
 
 run_task(task_cfg=task_cfg)
