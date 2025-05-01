@@ -8,8 +8,10 @@ from evalscope.collections import (
 from evalscope.utils.io_utils import dump_jsonl_data
 from pathlib import Path
 
-DATASET_TOTAL_SIZE = 3000  # 还有些问题，需要调整
+DATASET_TOTAL_SIZE = 444
 DATASET_PATH = Path("eval/datasets/math.jsonl")
+
+EVAL_BATCH_SIZE = 4
 
 dataset_schema = CollectionSchema(
     name="math",
@@ -33,7 +35,7 @@ task_cfg = TaskConfig(
             "filters": {"remove_until": "</think>"},  # 过滤掉思考的内容
         }
     },
-    eval_batch_size=32,
+    eval_batch_size=EVAL_BATCH_SIZE,
     generation_config={
         "max_tokens": 30000,  # 最大生成token数，建议设置为较大值避免输出截断
         "temperature": 0.6,  # 采样温度 (qwen 报告推荐值)
@@ -41,7 +43,7 @@ task_cfg = TaskConfig(
         "top_k": 20,  # top-k采样 (qwen 报告推荐值)
         "n": 1,  # 每个请求产生的回复数量
     },
-    timeout=3 * 60 * 000,  # 超时时间
+    timeout=10 * 60 * 000,  # 超时时间
     stream=True,  # 是否使用流式输出
     work_dir="eval/qwen3_4b",  # 评估过程保存路径
     outputs="eval/qwen3_4b",  # 评估结果保存路径
@@ -50,7 +52,7 @@ task_cfg = TaskConfig(
 
 if __name__ == "__main__":
     if not DATASET_PATH.exists():
-        sampler = StratifiedSampler(dataset_schema)
+        sampler = UniformSampler(dataset_schema)
         mixed_data = sampler.sample(DATASET_TOTAL_SIZE)
         dump_jsonl_data(mixed_data, DATASET_PATH)
     run_task(task_cfg=task_cfg)
