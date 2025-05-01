@@ -8,17 +8,17 @@ from evalscope.collections import (
 from evalscope.utils.io_utils import dump_jsonl_data
 from pathlib import Path
 
-DATASET_TOTAL_SIZE = 444
+DATASET_TOTAL_SIZE = 333
 DATASET_PATH = Path("eval/datasets/math.jsonl")
 
-EVAL_BATCH_SIZE = 4
+EVAL_BATCH_SIZE = 8
 
 dataset_schema = CollectionSchema(
     name="math",
     datasets=[
-        DatasetInfo(name="gsm8k", weight=0.03, task_type="math", tags=["math"]),
-        DatasetInfo(name="math_500", weight=0.3, task_type="math", tags=["math"]),
-        DatasetInfo(name="aime24", weight=1, task_type="math", tags=["math"]),
+        DatasetInfo(name="gsm8k", task_type="math", tags=["math"]),
+        DatasetInfo(name="math_500", task_type="math", tags=["math"]),
+        DatasetInfo(name="aime24", task_type="math", tags=["math"]),
     ],
 )
 
@@ -37,7 +37,7 @@ task_cfg = TaskConfig(
     },
     eval_batch_size=EVAL_BATCH_SIZE,
     generation_config={
-        "max_tokens": 30000,  # 最大生成token数，建议设置为较大值避免输出截断
+        "max_tokens": 32768,  # 最大生成token数，建议设置为较大值避免输出截断
         "temperature": 0.6,  # 采样温度 (qwen 报告推荐值)
         "top_p": 0.95,  # top-p采样 (qwen 报告推荐值)
         "top_k": 20,  # top-k采样 (qwen 报告推荐值)
