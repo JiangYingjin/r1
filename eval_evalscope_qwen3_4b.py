@@ -8,7 +8,7 @@ from evalscope.collections import (
 from evalscope.utils.io_utils import dump_jsonl_data
 from pathlib import Path
 
-DATASET_TOTAL_SIZE = 3000
+DATASET_TOTAL_SIZE = 3000  # 还有些问题，需要调整
 DATASET_PATH = Path("eval/datasets/math.jsonl")
 
 dataset_schema = CollectionSchema(
