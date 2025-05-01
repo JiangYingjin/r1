@@ -1,16 +1,34 @@
 from evalscope import TaskConfig, run_task
+from evalscope.collections import CollectionSchema, DatasetInfo
+from evalscope.collections import (
+    WeightedSampler,  # 数据集加权采样
+    StratifiedSampler,  # 数据集分层采样
+    UniformSampler,  # 数据集均匀采样
+)
+from evalscope.utils.io_utils import dump_jsonl_data
+from pathlib import Path
+
+DATASET_TOTAL_SIZE = 3000
+
+dataset_schema = CollectionSchema(
+    name="reasoning",
+    datasets=[
+        DatasetInfo(name="gsm8k", weight=1, task_type="math", tags=["math"]),
+        DatasetInfo(name="math_500", weight=1, task_type="math", tags=["math"]),
+        DatasetInfo(name="aime24", weight=1, task_type="math", tags=["math"]),
+    ],
+)
 
 task_cfg = TaskConfig(
     model="Qwen/Qwen3-4B",
     eval_type="service",
     api_url="http://127.0.0.1:23333/v1/chat/completions",
     api_key="sk-jiangyj",
-    datasets=[
-        "data_collection",
-    ],
+    # 数据集名称固定为 data_collection，表示评测混合数据集
+    datasets=["data_collection"],
     dataset_args={
         "data_collection": {
-            "dataset_id": "modelscope/EvalScope-Qwen3-Test",
+            "dataset_id": "eval/dataset/math.jsonl",  # 评测数据集的路径，可以是本地路径，也可以是modelscope上的数据集id
             "filters": {"remove_until": "</think>"},  # 过滤掉思考的内容
         }
     },
@@ -29,4 +47,9 @@ task_cfg = TaskConfig(
     # limit=100,  # 设置为100条数据进行测试
 )
 
-run_task(task_cfg=task_cfg)
+if __name__ == "__main__":
+    if not Path("eval/dataset/math.jsonl").exists():
+        sampler = WeightedSampler(dataset_schema)
+        mixed_data = sampler.sample(DATASET_TOTAL_SIZE)
+        dump_jsonl_data(mixed_data, "eval/dataset/math.jsonl")
+    run_task(task_cfg=task_cfg)
