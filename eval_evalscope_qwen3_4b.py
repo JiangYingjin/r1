@@ -25,7 +25,7 @@ task_cfg = TaskConfig(
     timeout=60000,  # 超时时间
     stream=True,  # 是否使用流式输出
     # limit=100,  # 设置为100条数据进行测试
-    outputs="eval/qwen3_4b",  # 评估结果保存路径
+    work_dir="eval/qwen3_4b",  # 评估结果保存路径
 )
 
 run_task(task_cfg=task_cfg)
