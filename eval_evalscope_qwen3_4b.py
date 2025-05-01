@@ -9,12 +9,13 @@ from evalscope.utils.io_utils import dump_jsonl_data
 from pathlib import Path
 
 DATASET_TOTAL_SIZE = 3000
+DATASET_PATH = Path("eval/datasets/math.jsonl")
 
 dataset_schema = CollectionSchema(
-    name="reasoning",
+    name="math",
     datasets=[
-        DatasetInfo(name="gsm8k", weight=1, task_type="math", tags=["math"]),
-        DatasetInfo(name="math_500", weight=1, task_type="math", tags=["math"]),
+        DatasetInfo(name="gsm8k", weight=0.03, task_type="math", tags=["math"]),
+        DatasetInfo(name="math_500", weight=0.3, task_type="math", tags=["math"]),
         DatasetInfo(name="aime24", weight=1, task_type="math", tags=["math"]),
     ],
 )
@@ -28,7 +29,7 @@ task_cfg = TaskConfig(
     datasets=["data_collection"],
     dataset_args={
         "data_collection": {
-            "dataset_id": "eval/dataset/math.jsonl",  # 评测数据集的路径，可以是本地路径，也可以是modelscope上的数据集id
+            "dataset_id": DATASET_PATH,  # 评测数据集的路径，可以是本地路径，也可以是modelscope上的数据集id
             "filters": {"remove_until": "</think>"},  # 过滤掉思考的内容
         }
     },
@@ -48,8 +49,8 @@ task_cfg = TaskConfig(
 )
 
 if __name__ == "__main__":
-    if not Path("eval/dataset/math.jsonl").exists():
-        sampler = WeightedSampler(dataset_schema)
+    if not DATASET_PATH.exists():
+        sampler = StratifiedSampler(dataset_schema)
         mixed_data = sampler.sample(DATASET_TOTAL_SIZE)
-        dump_jsonl_data(mixed_data, "eval/dataset/math.jsonl")
+        dump_jsonl_data(mixed_data, DATASET_PATH)
     run_task(task_cfg=task_cfg)
