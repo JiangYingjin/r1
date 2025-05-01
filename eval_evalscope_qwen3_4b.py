@@ -2,9 +2,9 @@ from evalscope import TaskConfig, run_task
 
 task_cfg = TaskConfig(
     model="Qwen/Qwen3-4B",
+    eval_type="service",
     api_url="http://127.0.0.1:23333/v1/chat/completions",
     api_key="sk-jiangyj",
-    eval_type="service",
     datasets=[
         "data_collection",
     ],
@@ -24,7 +24,7 @@ task_cfg = TaskConfig(
     },
     timeout=60000,  # 超时时间
     stream=True,  # 是否使用流式输出
-    limit=100,  # 设置为100条数据进行测试
+    # limit=100,  # 设置为100条数据进行测试
     outputs="eval/qwen3_4b",  # 评估结果保存路径
 )
 
