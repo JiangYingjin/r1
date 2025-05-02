@@ -19,17 +19,17 @@ dataset_schema = CollectionSchema(
     name="math",
     datasets=[
         # DatasetInfo(name="gsm8k", task_type="math", tags=["math"]),
-        DatasetInfo(name="math_500", task_type="math", tags=["math"]),
-        # DatasetInfo(name="aime24", task_type="math", tags=["math"]),
+        # DatasetInfo(name="math_500", task_type="math", tags=["math"]),
+        DatasetInfo(name="aime24", task_type="math", tags=["math"]),
     ],
 )
 
-dataset_schema = CollectionSchema(
-    name="exam",
-    datasets=[
-        DatasetInfo(name="gpqa", task_type="exam", tags=["exam"]),
-    ],
-)
+# dataset_schema = CollectionSchema(
+#     name="exam",
+#     datasets=[
+#         DatasetInfo(name="gpqa", task_type="exam", tags=["exam"]),
+#     ],
+# )
 
 task_cfg = TaskConfig(
     model="Qwen/Qwen2.5-3B-Instruct",
@@ -52,10 +52,10 @@ task_cfg = TaskConfig(
         "temperature": 0.6,  # 采样温度 (qwen 报告推荐值)
         "top_p": 0.95,  # top-p采样 (qwen 报告推荐值)
         "top_k": 20,  # top-k采样 (qwen 报告推荐值)
-        "n": 1,  # 每个请求产生的回复数量
+        "n": 1,  # 每个请求产生的回复数量 (注意 lmdeploy 目前只支持 n=1)
     },
-    timeout=10 * 60 * 000,  # 超时时间
     stream=True,  # 是否使用流式输出
+    timeout=10 * 60 * 000,  # 超时时间
     work_dir=OUT_DIR,  # 评估过程保存路径
     outputs=OUT_DIR,  # 评估结果保存路径
     # limit=100,  # 设置为100条数据进行测试

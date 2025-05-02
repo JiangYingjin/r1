@@ -9,7 +9,7 @@ LMDeploy
 Partial-JSON-Parser
 
 # EvalScope
-EvalScope
+EvalScope[APP]
 TikToken
 OmegaConf
 
