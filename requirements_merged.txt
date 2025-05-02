@@ -6,6 +6,7 @@ wandb
 
 # LMDeploy
 LMDeploy
+Partial-JSON-Parser
 
 # EvalScope
 EvalScope
