@@ -24,6 +24,13 @@ dataset_schema = CollectionSchema(
     ],
 )
 
+dataset_schema = CollectionSchema(
+    name="exam",
+    datasets=[
+        DatasetInfo(name="gpqa", task_type="exam", tags=["exam"]),
+    ],
+)
+
 task_cfg = TaskConfig(
     model="Qwen/Qwen2.5-3B-Instruct",
     # model="Qwen/Qwen3-4B",
