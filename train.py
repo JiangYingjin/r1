@@ -3,7 +3,13 @@ import yaml
 import wandb
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
-from rewards import correctness_reward, format_reward, length_reward
+from rewards import (
+    correctness_reward,
+    format_reward,
+    length_reward,
+    reasoning_reward,
+    reasoning_efficiency_reward,
+)
 from data_preparation import get_gsm8k_questions
 from system_prompt import SYSTEM_PROMPT
 
@@ -93,6 +99,8 @@ def main():
             format_reward.format_reward_func,
             correctness_reward.calculate_math_correctness_reward,
             length_reward.calculate_length_reward,
+            reasoning_reward.calculate_reasoning_reward,
+            reasoning_efficiency_reward.calculate_reasoning_efficiency_reward_self_contained,
         ],
     )
     trainer.train()

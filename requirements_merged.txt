@@ -4,6 +4,9 @@ Unsloth
 Unsloth_Zoo
 wandb
 
+# 验证答案
+Math-Verify==0.5.2
+
 # LMDeploy
 LMDeploy
 Partial-JSON-Parser
@@ -12,9 +15,6 @@ Partial-JSON-Parser
 EvalScope[APP]
 TikToken
 OmegaConf
-
-# 验证答案
-Math-Verify==0.5.2
 
 # 工具
 yq

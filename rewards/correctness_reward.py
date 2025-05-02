@@ -24,7 +24,12 @@ def calculate_math_correctness_reward(
     Returns:
         The correctness reward score.
     """
+
+    print(completions, answer)
+
     _completions = completions_to_lst(completions)
+    print(_completions)
+
     _answers = answer  # answer 是数据集参数名
 
     def _check_answer_correctness(completion: str, answer: str) -> float:

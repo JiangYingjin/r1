@@ -11,8 +11,6 @@ def completions_to_lst(completions) -> List[str]:
             for c in completions
         )
     ):
-        print(f"Length of completions: {len(completions)}")
-        print(f"Completions: {completions}")
         return [completion[0]["content"] for completion in completions]
     elif isinstance(completions, list) and all(isinstance(c, str) for c in completions):
         return completions

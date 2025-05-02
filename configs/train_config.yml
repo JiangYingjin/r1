@@ -1,7 +1,8 @@
 # 实验配置
 experiment:
-  model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
-  name: new_reward  # 实验名称，可通过命令行参数覆盖
+  model: Qwen/Qwen2.5-3B-Instruct
+  # model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
+  name: new_reward_2  # 实验名称，可通过命令行参数覆盖
   description: |
 
 # GPU 参数
@@ -12,7 +13,7 @@ gpu:
 # 训练参数
 training:
   grpo_num_generations: 6   # 若 OOM，可降低此值
-  total_steps: 4000
+  total_steps: 1500
   save_steps: 200
 
 # 随机种子
@@ -24,7 +25,7 @@ lora:
 
 # 序列长度参数
 sequence:
-  max_prompt_length: 512
+  max_prompt_length: 1024
   max_completion_length: 2560
 
 # 路径配置
