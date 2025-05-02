@@ -4,7 +4,7 @@ import wandb
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
 from reward_fn import (
-    xmlcount_reward_func,
+    format_reward_func,
     soft_format_reward_func,
     strict_format_reward_func,
     int_reward_func,
@@ -95,10 +95,9 @@ def main():
             report_to="wandb",
         ),
         reward_funcs=[
-            xmlcount_reward_func,
+            format_reward_func,
             soft_format_reward_func,
             strict_format_reward_func,
-            int_reward_func,
             correctness_reward_func,
         ],
     )
