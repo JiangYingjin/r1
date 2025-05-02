@@ -1,0 +1,17 @@
+# Unsloth
+vLLM
+Unsloth
+Unsloth_Zoo
+wandb
+
+# LMDeploy
+LMDeploy
+
+# EvalScope
+EvalScope
+TikToken
+OmegaConf
+
+# 工具
+yq
+nvitop

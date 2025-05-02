@@ -13,17 +13,20 @@ DATASET_PATH = Path("eval/datasets/math.jsonl")
 
 EVAL_BATCH_SIZE = 32
 
+OUT_DIR = Path("eval/qwen2.5_3b_instruct")
+
 dataset_schema = CollectionSchema(
     name="math",
     datasets=[
-        DatasetInfo(name="gsm8k", task_type="math", tags=["math"]),
-        # DatasetInfo(name="math_500", task_type="math", tags=["math"]),
+        # DatasetInfo(name="gsm8k", task_type="math", tags=["math"]),
+        DatasetInfo(name="math_500", task_type="math", tags=["math"]),
         # DatasetInfo(name="aime24", task_type="math", tags=["math"]),
     ],
 )
 
 task_cfg = TaskConfig(
-    model="Qwen/Qwen3-4B",
+    model="Qwen/Qwen2.5-3B-Instruct",
+    # model="Qwen/Qwen3-4B",
     eval_type="service",
     api_url="http://127.0.0.1:23333/v1/chat/completions",
     api_key="sk-jiangyj",
@@ -37,7 +40,8 @@ task_cfg = TaskConfig(
     },
     eval_batch_size=EVAL_BATCH_SIZE,
     generation_config={
-        "max_tokens": 32768,  # 最大生成token数，建议设置为较大值避免输出截断
+        "max_tokens": 4096,  # 最大生成token数，建议设置为较大值避免输出截断
+        # "max_tokens": 32768,  # 最大生成token数，建议设置为较大值避免输出截断
         "temperature": 0.6,  # 采样温度 (qwen 报告推荐值)
         "top_p": 0.95,  # top-p采样 (qwen 报告推荐值)
         "top_k": 20,  # top-k采样 (qwen 报告推荐值)
@@ -45,8 +49,8 @@ task_cfg = TaskConfig(
     },
     timeout=10 * 60 * 000,  # 超时时间
     stream=True,  # 是否使用流式输出
-    work_dir="eval/qwen3_4b",  # 评估过程保存路径
-    outputs="eval/qwen3_4b",  # 评估结果保存路径
+    work_dir=OUT_DIR,  # 评估过程保存路径
+    outputs=OUT_DIR,  # 评估结果保存路径
     # limit=100,  # 设置为100条数据进行测试
 )
 
