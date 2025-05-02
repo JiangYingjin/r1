@@ -10,7 +10,9 @@ PENALTY_INCORRECT_ANSWER = -0.5  # 答案错误惩罚
 PENALTY_VERIFICATION_ERROR = -0.1  # 验证异常惩罚
 
 
-def calculate_math_correctness_reward(completions, answer: List[str]) -> float:
+def calculate_math_correctness_reward(
+    completions, answer: List[str], **kwargs
+) -> float:
     """
     Calculates the reward based on the mathematical correctness of the answer.
     Prioritizes the <answer> tag, falls back to <think> if answer is incorrect/missing.

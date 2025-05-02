@@ -1,6 +1,7 @@
 import math
 from .reward_utils import extract_tag_content, completions_to_lst
 from typing import List
+import tiktoken
 
 # --- Constants ---
 # 长度相关的参数 (基于字符数，可根据需要调整为 Token 数)
@@ -19,7 +20,23 @@ LOG_SCALE_FACTOR = (
 )
 
 
-def calculate_length_reward(completions) -> List[float]:
+# --- Tiktoken Initialization ---
+try:
+    encoder = tiktoken.encoding_for_model("gpt-4o")
+except Exception as e:
+    print(
+        f"Warning: Could not load tiktoken encoder for gpt-4o: {e}. Falling back to cl100k_base."
+    )
+
+
+def get_token_count(text: str) -> int:
+    """
+    Calculates the token count for a given text using the GPT-4o tokenizer.
+    """
+    return len(encoder.encode(text, disallowed_special=()))
+
+
+def calculate_length_reward(completions, **kwargs) -> List[float]:
     """
     Calculates a reward based on the length of the content within the <think> tag.
     Encourages longer thinking processes up to a point, penalizes excessive length.
@@ -38,7 +55,7 @@ def calculate_length_reward(completions) -> List[float]:
         if not think_content:
             return 0.0  # No think tag or empty content
 
-        think_length = len(think_content)
+        think_length = get_token_count(think_content)
 
         # 1. Logarithmic reward based on length
         # Using log(length + 1) to handle length 0 gracefully and ensure diminishing returns

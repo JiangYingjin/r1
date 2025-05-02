@@ -74,7 +74,7 @@ keyword_patterns = [
 ]
 
 
-def calculate_reasoning_reward(completions) -> List[float]:
+def calculate_reasoning_reward(completions, **kwargs) -> List[float]:
     """
     Calculates a reward based on the usage of reasoning keywords in <think>
     and penalizes incorrect opening phrases.
