@@ -30,7 +30,7 @@ def completions_to_lst(completions) -> List[str]:
             )
 
 
-def extract_tag_content(text: str, tag: str) -> str | None:
+def extract_tag_content(text: str, tag: str, strip_content: bool = True) -> str | None:
     """Extracts content between the first occurrence of <tag> and </tag>."""
     start_tag = f"<{tag}>"
     end_tag = f"</{tag}>"
@@ -41,4 +41,7 @@ def extract_tag_content(text: str, tag: str) -> str | None:
     end_index = text.find(end_tag, start_index)
     if end_index == -1:
         return None  # Tag opened but not closed properly
-    return text[start_index:end_index].strip()  # Return stripped content
+    if strip_content:
+        return text[start_index:end_index].strip()  # Return stripped content
+    else:
+        return text[start_index:end_index]  # Return unstripped content
