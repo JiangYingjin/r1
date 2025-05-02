@@ -37,13 +37,13 @@ fi
 export CUDA_VISIBLE_DEVICES=$VISIBLE_DEVICES
 
 # 从配置文件读取实验描述
-EXP_MODEL=$(yq '.experiment.model' $CONFIG_FILE)
-EXP_NAME=$(yq '.experiment.name' $CONFIG_FILE)
-EXP_DESC=$(yq '.experiment.description' $CONFIG_FILE)
+EXP_MODEL=$(yq -r '.experiment.model' $CONFIG_FILE)
+EXP_NAME=$(yq -r '.experiment.name' $CONFIG_FILE)
+EXP_DESC=$(yq -r '.experiment.description' $CONFIG_FILE)
 
 # 从配置文件读取路径
-CWD=$(yq '.paths.project_root' $CONFIG_FILE)
-OUT_DIR=$(yq '.paths.output_root' $CONFIG_FILE)
+CWD=$(yq -r '.paths.project_root' $CONFIG_FILE)
+OUT_DIR=$(yq -r '.paths.output_root' $CONFIG_FILE)
 
 # 实验目录
 exp_dir=${OUT_DIR}/exp/${EXP_MODEL//\//_}/${EXP_NAME}

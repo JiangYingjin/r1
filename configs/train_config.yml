@@ -1,7 +1,7 @@
 # 实验配置
 experiment:
-  model: "unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit"
-  name: "gpu0.7_grpo6"  # 实验名称，可通过命令行参数覆盖
+  model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
+  name: new_reward  # 实验名称，可通过命令行参数覆盖
   description: |
 
 # GPU 参数
@@ -29,8 +29,8 @@ sequence:
 
 # 路径配置
 paths:
-  project_root: "/root/proj/r1"  # 项目根目录
-  output_root: "/root/lanyun-tmp/r1"  # 项目输出目录
+  project_root: /root/proj/r1  # 项目根目录
+  output_root: /root/lanyun-tmp/r1  # 项目输出目录
 
 # 环境变量
 environment:
