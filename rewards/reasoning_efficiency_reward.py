@@ -4,6 +4,7 @@ from typing import List, Tuple, Optional
 from math_verify import parse, verify
 from .reward_utils import completions_to_lst, extract_tag_content
 import time
+
 # --- Constants ---
 # Reward/Penalty boundaries for efficiency calculation
 REWARD_EFFICIENT_CORRECT = 0.7  # Target reward for short thought + correct answer
@@ -153,7 +154,7 @@ def reasoning_efficiency_reward(
         # --- End of Single Completion Calculation ---
 
     print(
-        f"Reasoning Efficiency Rewards: {[(i,round(score, 3)) for i, score in enumerate(efficiency_rewards)]} ({time.time() - start_time:.3f} s)"
+        f"Reasoning Efficiency Rewards: {[round(score, 3) for i, score in enumerate(efficiency_rewards)]} ({time.time() - start_time:.3f} s)"
     )
     print("\n" + "=" * 90 + "\n")
     return efficiency_rewards  # 保持返回值不变

@@ -137,6 +137,6 @@ def correctness_reward(
 
     print("\n" + "=" * 90 + "\n")
     print(
-        f"Correctness Rewards: {[(i,round(score, 3)) for i, score in enumerate(correctness_scores)]} ({time.time() - start_time:.3f} s)"
+        f"Correctness Rewards: {[round(score, 3) for  i, score in enumerate(correctness_scores)]} ({time.time() - start_time:.3f} s)"
     )
     return correctness_scores

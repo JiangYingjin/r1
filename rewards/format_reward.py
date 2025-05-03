@@ -596,7 +596,7 @@ def format_reward(completions, debug=False, **kwargs) -> List[float]:
             print("--------------------------------------")
 
     print(
-        f"Format Rewards: {[(i,round(score, 3)) for i, score in enumerate(final_rewards)]} ({time.time() - start_time:.3f} s)"
+        f"Format Rewards: {[round(score, 3) for i, score in enumerate(final_rewards)]} ({time.time() - start_time:.3f} s)"
     )
     return final_rewards
 

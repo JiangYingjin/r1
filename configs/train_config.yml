@@ -2,7 +2,7 @@
 experiment:
   model: Qwen/Qwen2.5-3B-Instruct
   # model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
-  name: better_reward_1  # 实验名称，可通过命令行参数覆盖
+  name: better_reward_2  # 实验名称，可通过命令行参数覆盖
   description: |
 
 # GPU 参数
