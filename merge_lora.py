@@ -27,31 +27,34 @@ def find_checkpoints(ckpt_dir: Path):
     return checkpoints
 
 
-def merge_and_save(checkpoint_path: Path, step: str, ckpt_dir: Path):
-    merged_dir = ckpt_dir / f"checkpoint-{step}_merged"
+def merge_and_save(ckpt_dir: Path):
+
+    merged_dir = Path(ckpt_dir).parent / (ckpt_dir.name + "_merged")
+
     if merged_dir.exists():
         print(f"{merged_dir.name} 已存在，跳过处理")
         return
 
-    print(f"正在处理 {checkpoint_path.name}...")
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=str(checkpoint_path),
-    )
-    print(f"成功加载 {checkpoint_path.name} 模型")
+    try:
+        print(f"正在处理 {ckpt_dir.name}...")
+        model, tokenizer = FastLanguageModel.from_pretrained(str(ckpt_dir))
+        print(f"成功加载 {ckpt_dir.name} 模型")
 
-    print(f"正在将模型保存到 {merged_dir}，使用 merged_16bit 格式...")
-    model.save_pretrained_merged(
-        merged_dir,
-        tokenizer,
-        save_method="merged_16bit",
-    )
-    print(f"{checkpoint_path.name} 已成功保存为 merged_16bit 格式")
+        print(f"正在将模型保存到 {merged_dir}，使用 merged_16bit 格式...")
+        model.save_pretrained_merged(
+            merged_dir,
+            tokenizer,
+            save_method="merged_16bit",
+        )
+        print(f"{ckpt_dir.name} 已成功保存为 merged_16bit 格式")
+    except Exception as e:
+        print(f"合并失败: {e}")
 
 
 def main():
     checkpoints = find_checkpoints(CKPT_DIR)
-    for checkpoint_path, step in tqdm(checkpoints):
-        merge_and_save(checkpoint_path, step, CKPT_DIR)
+    for ckpt_dir, step in tqdm(checkpoints):
+        merge_and_save(ckpt_dir)
 
 
 if __name__ == "__main__":
