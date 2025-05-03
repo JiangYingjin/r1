@@ -1,11 +1,3 @@
-"""Our reasoning model is much better - it's not always correct, since we only trained it for an hour or so - it'll be better if we extend the sequence length and train for longer!
-
-<a name="Save"></a>
-### Saving to float16 for VLLM
-
-We also support saving to `float16` directly. Select `merged_16bit` for float16 or `merged_4bit` for int4. We also allow `lora` adapters as a fallback. Use `push_to_hub_merged` to upload to your Hugging Face account! You can go to https://huggingface.co/settings/tokens for your personal tokens.
-"""
-
 from unsloth import FastLanguageModel
 
 for step in range(2000, 4001, 200):
@@ -14,7 +6,7 @@ for step in range(2000, 4001, 200):
         model_name=f"/root/lanyun-tmp/r1/exp/unsloth_Qwen2.5-3B-Instruct-unsloth-bnb-4bit/gpu0.8_grpo6_2/ckpt/checkpoint-{step}",
     )
     print(f"成功加载 checkpoint-{step} 模型")
-    
+
     save_path = f"ckpt_merged/{step}"
     print(f"正在将模型保存到 {save_path}，使用 merged_16bit 格式...")
     model.save_pretrained_merged(

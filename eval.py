@@ -18,9 +18,9 @@ OUT_DIR = Path("eval/qwen2.5_3b_instruct")
 dataset_schema = CollectionSchema(
     name="math",
     datasets=[
-        # DatasetInfo(name="gsm8k", task_type="math", tags=["math"]),
+        DatasetInfo(name="gsm8k", task_type="math", tags=["math"]),
         # DatasetInfo(name="math_500", task_type="math", tags=["math"]),
-        DatasetInfo(name="aime24", task_type="math", tags=["math"]),
+        # DatasetInfo(name="aime24", task_type="math", tags=["math"]),
     ],
 )
 
@@ -32,7 +32,8 @@ dataset_schema = CollectionSchema(
 # )
 
 task_cfg = TaskConfig(
-    model="Qwen/Qwen2.5-3B-Instruct",
+    model="Qwen2.5-3B-Instruct",
+    # model="Qwen/Qwen2.5-3B-Instruct",
     # model="Qwen/Qwen3-4B",
     eval_type="service",
     api_url="http://127.0.0.1:23333/v1/chat/completions",
