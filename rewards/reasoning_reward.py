@@ -49,10 +49,7 @@ REASONING_KEYWORDS = {
     "perhaps",
     "maybe",
     "possibly",
-    "another angle",  # 简化多词短语表示
-    # 注意: 'let's', 'let me' 本身比较通用，但结合特定开头语境已有处理。
-    # 'check' 单独出现也奖励。'assuming'/'assumption' 都包含。
-    # 多词短语的处理见下文的 regex 构建。
+    "another",
 }
 # 强制开头模式
 REQUIRED_OPENINGS = [
@@ -60,7 +57,7 @@ REQUIRED_OPENINGS = [
     "\nOkay, let's ",
     "\nOkay, let me ",
 ]
-OPENING_PENALTY = -0.75  # 如果 <think> 存在但开头错误，施加此惩罚
+OPENING_PENALTY = -0.5  # 如果 <think> 存在但开头错误，施加此惩罚
 
 # 关键词奖励参数
 KEYWORD_REWARD_SCALE_FACTOR = 0.08
@@ -133,6 +130,7 @@ def reasoning_reward(completions, **kwargs) -> List[float]:
     print(
         f"Reasoning Rewards: {[round(score, 3) for i, score in enumerate(reasoning_rewards)]} ({time.time() - start_time:.3f} s)"
     )
+    print("\n" + "=" * 90 + "\n")
     return reasoning_rewards
 
 

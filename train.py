@@ -110,7 +110,7 @@ def main():
             format_reward.format_reward,
             length_reward.length_reward,
             reasoning_reward.reasoning_reward,
-            reasoning_efficiency_reward.reasoning_efficiency_reward,
+            # reasoning_efficiency_reward.reasoning_efficiency_reward,
         ],
     )
     trainer.train()
