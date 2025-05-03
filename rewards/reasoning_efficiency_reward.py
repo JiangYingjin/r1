@@ -3,7 +3,7 @@ import tiktoken
 from typing import List, Tuple, Optional
 from math_verify import parse, verify
 from .reward_utils import completions_to_lst, extract_tag_content
-
+import time
 # --- Constants ---
 # Reward/Penalty boundaries for efficiency calculation
 REWARD_EFFICIENT_CORRECT = 0.7  # Target reward for short thought + correct answer
@@ -56,6 +56,8 @@ def reasoning_efficiency_reward(
     Returns:
         A list of reasoning efficiency reward scores.
     """
+    start_time = time.time()
+
     _completions = completions_to_lst(completions)
     _answers = answer  # 使用传入的 answer 列表
 
@@ -151,7 +153,7 @@ def reasoning_efficiency_reward(
         # --- End of Single Completion Calculation ---
 
     print(
-        f"Reasoning Efficiency Rewards: {[round(score, 3) for score in efficiency_rewards]}"
+        f"Reasoning Efficiency Rewards: {[round(score, 3) for score in efficiency_rewards]} ({time.time() - start_time:.3f} s)"
     )
     print("\n" + "=" * 100 + "\n")
     return efficiency_rewards  # 保持返回值不变

@@ -2,6 +2,7 @@ import re
 import math
 from .reward_utils import extract_tag_content, completions_to_lst
 from typing import List, Set
+import time
 
 # --- Constants ---
 # 思考关键词列表 (全部小写)
@@ -79,6 +80,8 @@ def reasoning_reward(completions, **kwargs) -> List[float]:
     Calculates a reward based on the usage of reasoning keywords in <think>
     and penalizes incorrect opening phrases.
     """
+    start_time = time.time()
+
     _completions = completions_to_lst(completions)
 
     def _score_single_completion(completion: str) -> float:
@@ -128,7 +131,7 @@ def reasoning_reward(completions, **kwargs) -> List[float]:
 
     reasoning_rewards = [_score_single_completion(c) for c in _completions]
     print(
-        f"Reasoning Rewards: {[round(score, 3) for score in reasoning_rewards]}"
+        f"Reasoning Rewards: {[round(score, 3) for score in reasoning_rewards]} ({time.time() - start_time:.3f} s)"
     )
     return reasoning_rewards
 

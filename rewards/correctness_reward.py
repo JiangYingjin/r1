@@ -1,6 +1,7 @@
 from math_verify import parse, verify
 from .reward_utils import extract_tag_content, completions_to_lst
 from typing import List
+import time
 
 # --- Constants ---
 REWARD_CORRECT_IN_ANSWER = 2.5  # <answer> 标签正确奖励
@@ -26,6 +27,8 @@ def correctness_reward(
     Returns:
         A list of correctness reward scores.
     """
+    start_time = time.time()
+
     _completions = completions_to_lst(completions)
     _answers = answer  # 使用传入的 answer 列表
 
@@ -133,5 +136,7 @@ def correctness_reward(
     ]
 
     print("\n" + "=" * 100 + "\n")
-    print(f"Correctness Rewards: {[round(score, 3) for score in correctness_scores]}")
+    print(
+        f"Correctness Rewards: {[round(score, 3) for score in correctness_scores]} ({time.time() - start_time:.3f} s)"
+    )
     return correctness_scores

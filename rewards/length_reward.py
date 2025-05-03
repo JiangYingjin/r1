@@ -2,6 +2,7 @@ import math
 from .reward_utils import extract_tag_content, completions_to_lst
 from typing import List
 import tiktoken
+import time
 
 # --- Constants ---
 # 长度相关的参数 (基于字符数，可根据需要调整为 Token 数)
@@ -47,6 +48,8 @@ def length_reward(completions, **kwargs) -> List[float]:
     Returns:
         A list of length-based reward scores.
     """
+    start_time = time.time()
+
     _completions = completions_to_lst(completions)
 
     def _score_single_completion(completion: str) -> float:
@@ -81,7 +84,9 @@ def length_reward(completions, **kwargs) -> List[float]:
         return final_reward
 
     length_rewards = [_score_single_completion(c) for c in _completions]
-    print(f"Length Rewards: {[round(score, 3) for score in length_rewards]}")
+    print(
+        f"Length Rewards: {[round(score, 3) for score in length_rewards]} ({time.time() - start_time:.3f} s)"
+    )
     return length_rewards
 
 

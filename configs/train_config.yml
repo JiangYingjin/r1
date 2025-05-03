@@ -13,7 +13,7 @@ gpu:
 # 训练参数
 training:
   grpo_num_generations: 6   # 若 OOM，可降低此值
-  total_steps: 1500
+  total_steps: 600
   save_steps: 50
 
 # 随机种子

@@ -1,7 +1,6 @@
-import re
+import re, time
 from typing import List, Dict, Tuple, Any
 from rewards.reward_utils import completions_to_lst
-
 
 # --- Constants ---
 TAG_THINK_START = "<think>"
@@ -469,6 +468,8 @@ def format_reward(completions, debug=False, **kwargs) -> List[float]:
     Returns:
         A list of float reward scores.
     """
+    start_time = time.time()
+
     _completions = completions_to_lst(completions)
 
     final_rewards = []
@@ -594,7 +595,9 @@ def format_reward(completions, debug=False, **kwargs) -> List[float]:
 
             print("--------------------------------------")
 
-    print(f"Format Rewards: {[round(score, 3) for score in final_rewards]}")
+    print(
+        f"Format Rewards: {[round(score, 3) for score in final_rewards]} ({time.time() - start_time:.3f} s)"
+    )
     return final_rewards
 
 
