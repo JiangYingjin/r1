@@ -85,7 +85,7 @@ def main():
             bf16=is_bfloat16_supported(),
             fp16=not is_bfloat16_supported(),
             per_device_train_batch_size=1,
-            gradient_accumulation_steps=4,  # Increase to 4 for smoother training；相当于将批次大小增加到自身大小以上，但不会影响内存消耗！如果您想要更平滑的训练损失曲线，我们通常建议增加此值。
+            gradient_accumulation_steps=2,  # Increase to 4 for smoother training；相当于将批次大小增加到自身大小以上，但不会影响内存消耗！如果您想要更平滑的训练损失曲线，我们通常建议增加此值。
             num_generations=config["training"]["grpo_num_generations"],
             max_prompt_length=config["sequence"]["max_prompt_length"],
             max_completion_length=config["sequence"]["max_completion_length"],

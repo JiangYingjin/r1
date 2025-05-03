@@ -7,14 +7,14 @@ experiment:
 
 # GPU 参数
 gpu:
-  memory_utilization: 0.7  # 若 OOM，可降低此值
+  memory_utilization: 0.65  # 若 OOM，可降低此值
   visible_devices: -1
 
 # 训练参数
 training:
   grpo_num_generations: 6   # 若 OOM，可降低此值
   total_steps: 1500
-  save_steps: 100
+  save_steps: 50
 
 # 随机种子
 random_state: 999
