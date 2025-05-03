@@ -6,15 +6,15 @@ Then add the time she spends on each activity to find the total time: 120 minute
 Then divide the time she spends watching the comet by the total time and multiply by 100% to express the answer as a percentage: 20 minutes / 240 minutes = 8.333...%, which rounds down to 8%
 #### 8"""
 
-gold = "8%%"
+gold = "5/4"
 
 resp = """
-$$
-\\boxed{8}
-$$
+5/4
 """
 
-resp = "\\boxed{8\%}"
+resp = """
+\\pi
+"""
 
 from math_verify import verify, parse
 
