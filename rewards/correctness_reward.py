@@ -49,7 +49,7 @@ def correctness_reward(
 
     # 打印每个 Completion
     for i, completion in enumerate(_completions):
-        title = completion_title_tpl.format(i)
+        title = completion_title_tpl.format(i + 1)
         print(
             "\n"
             + "=" * ((line_len - len(title)) // 2)
@@ -135,8 +135,8 @@ def correctness_reward(
         for i in range(len(_completions))
     ]
 
-    print("\n" + "=" * 100 + "\n")
+    print("\n" + "=" * 90 + "\n")
     print(
-        f"Correctness Rewards: {[round(score, 3) for score in correctness_scores]} ({time.time() - start_time:.3f} s)"
+        f"Correctness Rewards: {[(i,round(score, 3)) for i, score in enumerate(correctness_scores)]} ({time.time() - start_time:.3f} s)"
     )
     return correctness_scores

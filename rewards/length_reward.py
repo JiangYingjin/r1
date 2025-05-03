@@ -85,7 +85,7 @@ def length_reward(completions, **kwargs) -> List[float]:
 
     length_rewards = [_score_single_completion(c) for c in _completions]
     print(
-        f"Length Rewards: {[round(score, 3) for score in length_rewards]} ({time.time() - start_time:.3f} s)"
+        f"Length Rewards: {[(i,round(score, 3)) for i, score in enumerate(length_rewards)]} ({time.time() - start_time:.3f} s)"
     )
     return length_rewards
 

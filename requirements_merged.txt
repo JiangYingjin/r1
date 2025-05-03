@@ -7,6 +7,10 @@ wandb
 # 验证答案
 Math-Verify==0.5.2
 
+# 工具
+yq
+nvitop
+
 # LMDeploy
 LMDeploy
 Partial-JSON-Parser
@@ -16,6 +20,3 @@ EvalScope[APP]
 TikToken
 OmegaConf
 
-# 工具
-yq
-nvitop

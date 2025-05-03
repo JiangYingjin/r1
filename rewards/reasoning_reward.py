@@ -131,7 +131,7 @@ def reasoning_reward(completions, **kwargs) -> List[float]:
 
     reasoning_rewards = [_score_single_completion(c) for c in _completions]
     print(
-        f"Reasoning Rewards: {[round(score, 3) for score in reasoning_rewards]} ({time.time() - start_time:.3f} s)"
+        f"Reasoning Rewards: {[(i,round(score, 3)) for i, score in enumerate(reasoning_rewards)]} ({time.time() - start_time:.3f} s)"
     )
     return reasoning_rewards
 
