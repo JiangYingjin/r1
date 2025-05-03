@@ -35,7 +35,7 @@ def merge_and_save(checkpoint_path: Path, step: str, ckpt_dir: Path):
 
     print(f"正在处理 {checkpoint_path.name}...")
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=checkpoint_path,
+        model_name=str(checkpoint_path),
     )
     print(f"成功加载 {checkpoint_path.name} 模型")
 
