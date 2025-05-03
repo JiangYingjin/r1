@@ -28,14 +28,6 @@ def main():
     output_root = config["paths"]["output_root"]
     ckpt_out_dir = f"{output_root}/exp/{model_name.replace('/','_')}/{exp_name}/ckpt"
 
-    # 初始化 wandb
-    wandb.init(
-        project="r1",
-        name=exp_name,
-        notes=config["experiment"]["description"],
-        config=config,
-    )
-
     # model
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_name,
@@ -66,7 +58,25 @@ def main():
         random_state=config["random_state"],
     )
 
+    # 保存原始模型
+    save_ckpt = False
+    if save_ckpt:
+        model.save_pretrained_merged(
+            f"{output_root}/exp/{model_name.replace('/','_')}/ckpt",
+            tokenizer,
+            save_method="merged_16bit",
+        )
+        exit()
+
     dataset = get_gsm8k_questions()
+
+    # 初始化 wandb
+    wandb.init(
+        project="r1",
+        name=exp_name,
+        notes=config["experiment"]["description"],
+        config=config,
+    )
 
     trainer = GRPOTrainer(
         model=model,
