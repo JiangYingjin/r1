@@ -85,20 +85,12 @@ def reasoning_efficiency_reward(
 
         # --- 3. Determine Correctness (Internal Check with PARSE FIRST) ---
         is_correct = False
-        parsed_gold = None  # 用于存储解析后的标准答案
-
-        try:
-            # 尝试解析标准答案
-            parsed_gold = parse(single_answer)
-            if parsed_gold is None:  # 检查 parse 是否成功解析标准答案
-                print(f"Warning: Failed to parse ground truth answer: {single_answer}")
-                # is_correct 保持 False
-        except Exception as e:
-            print(f"Warning: Error parsing ground truth answer '{single_answer}': {e}")
-            # is_correct 保持 False
+        parsed_gold_1 = parse(single_answer)
+        parsed_gold_2 = parse(single_answer.split("####")[-1])
+        parsed_gold_3 = parse(single_answer.split("####")[-1] + "%")
 
         # 只有在标准答案成功解析后，才继续检查模型的输出
-        if parsed_gold is not None:
+        if parsed_gold_1 or parsed_gold_2 or parsed_gold_3:
             # 检查 <answer> 标签内容
             if answer_content:
                 try:
@@ -106,7 +98,11 @@ def reasoning_efficiency_reward(
                     # 检查模型输出的 answer 内容是否成功解析
                     if parsed_completion_answer is not None:
                         # *** 关键修正：使用解析后的对象进行验证 ***
-                        if verify(parsed_gold, parsed_completion_answer):
+                        if (
+                            verify(parsed_gold_1, parsed_completion_answer)
+                            or verify(parsed_gold_2, parsed_completion_answer)
+                            or verify(parsed_gold_3, parsed_completion_answer)
+                        ):
                             is_correct = True  # 标记为正确
                 except Exception as e:
                     print(
@@ -121,7 +117,11 @@ def reasoning_efficiency_reward(
                     # 检查模型输出的 think 内容是否成功解析
                     if parsed_completion_think is not None:
                         # *** 关键修正：使用解析后的对象进行验证 ***
-                        if verify(parsed_gold, parsed_completion_think):
+                        if (
+                            verify(parsed_gold_1, parsed_completion_think)
+                            or verify(parsed_gold_2, parsed_completion_think)
+                            or verify(parsed_gold_3, parsed_completion_think)
+                        ):
                             is_correct = True  # 标记为正确
                 except Exception as e:
                     print(

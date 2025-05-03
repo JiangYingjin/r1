@@ -64,15 +64,10 @@ def correctness_reward(
 
     def _check_answer_correctness(completion: str, single_answer: str) -> float:
         """检查单个 completion 的正确性分数"""
-        try:
-            # 1. 首先解析标准答案 (只执行一次)
-            parsed_gold = parse(single_answer)
-            if parsed_gold is None:  # 或其他表示解析失败的返回值
-                print(f"Warning: Failed to parse ground truth answer: {single_answer}")
-                return PENALTY_VERIFICATION_ERROR  # 如果标准答案都无法解析，给错误惩罚
-        except Exception as e:
-            print(f"Warning: Error parsing ground truth answer '{single_answer}': {e}")
-            return PENALTY_VERIFICATION_ERROR
+        # 1. 首先解析标准答案 (只执行一次)
+        parsed_gold_1 = parse(single_answer)
+        parsed_gold_2 = parse(single_answer.split("####")[-1])
+        parsed_gold_3 = parse(single_answer.split("####")[-1] + "%")
 
         completion_answer_content = extract_tag_content(completion, "answer")
         parsed_completion_answer = None
@@ -86,7 +81,11 @@ def correctness_reward(
                     parsed_completion_answer is not None
                 ):  # 检查 parse 是否成功返回有效结果
                     answer_parse_ok = True
-                    if verify(parsed_gold, parsed_completion_answer):
+                    if (
+                        verify(parsed_gold_1, parsed_completion_answer)
+                        or verify(parsed_gold_2, parsed_completion_answer)
+                        or verify(parsed_gold_3, parsed_completion_answer)
+                    ):
                         return REWARD_CORRECT_IN_ANSWER  # 验证成功，返回最高奖励
                     else:
                         # 解析成功，但验证失败 (答案错误)
@@ -110,7 +109,11 @@ def correctness_reward(
                 if parsed_completion_think is not None:  # 检查 parse 是否成功
                     think_parse_ok = True
                     # *** 关键修正：使用 parsed_completion_think 进行验证 ***
-                    if verify(parsed_gold, parsed_completion_think):
+                    if (
+                        verify(parsed_gold_1, parsed_completion_think)
+                        or verify(parsed_gold_2, parsed_completion_think)
+                        or verify(parsed_gold_3, parsed_completion_think)
+                    ):
                         # 在 <think> 中验证成功
                         return REWARD_CORRECT_IN_THINK_ONLY
                     else:

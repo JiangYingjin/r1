@@ -1,25 +1,25 @@
-gold = """For the 2nd kilometer, the donation will be $10 * 2 = $<<10*2=20>>20.\nFor the 3rd kilometer, the donation will be $20 * 2 = $<<20*2=40>>40.\nFor the 4th kilometer, the donation will be $40 * 2 = $<<40*2=80>>80.\nFor the final kilometer, the donation will be $80 * 2 = $<<80*2=160>>160.\nFor the entire race the donation will be $10 + $20 + $40 + $80 + $160 = $<<10+20+40+80+160=310>>310.\n#### 310', 'For the 2nd kilometer, the donation will be $10 * 2 = $<<10*2=20>>20.\nFor the 3rd kilometer, the donation will be $20 * 2 = $<<20*2=40>>40.\nFor the 4th kilometer, the donation will be $40 * 2 = $<<40*2=80>>80.\nFor the final kilometer, the donation will be $80 * 2 = $<<80*2=160>>160.\nFor the entire race the donation will be $10 + $20 + $40 + $80 + $160 = $<<10+20+40+80+160=310>>310.\n#### 310', 'For the 2nd kilometer, the donation will be $10 * 2 = $<<10*2=20>>20.\nFor the 3rd kilometer, the donation will be $20 * 2 = $<<20*2=40>>40.\nFor the 4th kilometer, the donation will be $40 * 2 = $<<40*2=80>>80.\nFor the final kilometer, the donation will be $80 * 2 = $<<80*2=160>>160.\nFor the entire race the donation will be $10 + $20 + $40 + $80 + $160 = $<<10+20+40+80+160=310>>310.\n#### 310', 'For the 2nd kilometer, the donation will be $10 * 2 = $<<10*2=20>>20.\nFor the 3rd kilometer, the donation will be $20 * 2 = $<<20*2=40>>40.\nFor the 4th kilometer, the donation will be $40 * 2 = $<<40*2=80>>80.\nFor the final kilometer, the donation will be $80 * 2 = $<<80*2=160>>160.\nFor the entire race the donation will be $10 + $20 + $40 + $80 + $160 = $<<10+20+40+80+160=310>>310.\n#### 310"""
+gold = """
+First convert Haley's shopping time to minutes: 2 hours * 60 minutes/hour = <<2*60=120>>120 minutes
+Then convert Haley's setup time to minutes: .5 hours * 60 minutes/hour = <<.5*60=30>>30 minutes
+Then find the total time she spends making a snack: 3 * 30 minutes = <<3*30=90>>90 minutes
+Then add the time she spends on each activity to find the total time: 120 minutes + 30 minutes + 90 minutes = <<120+30+90=240>>240 minutes
+Then divide the time she spends watching the comet by the total time and multiply by 100% to express the answer as a percentage: 20 minutes / 240 minutes = 8.333...%, which rounds down to 8%
+#### 8"""
 
-resp = (
-    """
-Okay, so I need to calculate Suzanne's parents' donation based on doubling each successively. First, the donation for the first kilometer is $10.\n- For the second kilometer: $10 * 2 = $20.\n- For the third kilometer: $20 * 2 = $40.\n- For the fourth kilometer: $40 * 2 = $80.\n- For the fifth kilometer: $80 * 2 = $160.\n\nNow, sum these amounts to find the total donation:\n\n$10 + $20 + $40 + $80 + $160 = $310.\n\nTherefore, Suzanne's parents will donate $310 if she finishes the 5-kilometer race.
+gold = "8%%"
+
+resp = """
+$$
+\\boxed{8}
+$$
 """
-    * 7
-)
 
-from tiktoken import encoding_for_model
+resp = "\\boxed{8\%}"
 
-encoding = encoding_for_model("gpt-4o")
+from math_verify import verify, parse
 
-import time
-
-start_time = time.time()
-for _ in range(6):
-    tokens = encoding.encode(resp)
-end_time = time.time()
-
-print(f"编码长度: {len(tokens)}")
-print(f"编码5次耗时: {end_time - start_time:.6f} 秒")
-
-
-print("=" * 100)
+parsed_gold = parse(gold)
+parsed_resp = parse(resp)
+print(f"gold: {parsed_gold}")
+print(f"resp: {parsed_resp}")
+print(verify(parsed_gold, parsed_resp))
