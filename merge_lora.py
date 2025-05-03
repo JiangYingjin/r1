@@ -6,7 +6,7 @@ CKPT_DIR = Path("/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_
 
 
 def find_checkpoints(ckpt_dir: Path):
-    """查找所有 checkpoint-xxxx 目录，返回 (Path对象, step) 列表"""
+    """查找所有 checkpoint-xxxx 目录，返回 Path对象列表"""
     checkpoints = []
     for item in ckpt_dir.iterdir():
         if (
@@ -14,14 +14,10 @@ def find_checkpoints(ckpt_dir: Path):
             and item.name.startswith("checkpoint-")
             and not item.name.endswith("_merged")
         ):
-            try:
-                step = item.name.split("-")[1]
-                checkpoints.append((item, step))
-            except IndexError:
-                continue
+            checkpoints.append(item)
 
     print(f"找到 {len(checkpoints)} 个 checkpoint：")
-    for checkpoint_path, step in checkpoints:
+    for checkpoint_path in checkpoints:
         print(f"  {checkpoint_path.name}")
 
     return checkpoints
@@ -53,7 +49,7 @@ def merge_and_save(ckpt_dir: Path):
 
 def main():
     checkpoints = find_checkpoints(CKPT_DIR)
-    for ckpt_dir, step in tqdm(checkpoints):
+    for ckpt_dir in tqdm(checkpoints):
         merge_and_save(ckpt_dir)
 
 
