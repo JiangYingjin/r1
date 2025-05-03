@@ -96,8 +96,8 @@ def main():
             report_to="wandb",
         ),
         reward_funcs=[
-            format_reward.format_reward,
             correctness_reward.correctness_reward,
+            format_reward.format_reward,
             length_reward.length_reward,
             reasoning_reward.reasoning_reward,
             reasoning_efficiency_reward.reasoning_efficiency_reward,

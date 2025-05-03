@@ -20,3 +20,6 @@ end_time = time.time()
 
 print(f"编码长度: {len(tokens)}")
 print(f"编码5次耗时: {end_time - start_time:.6f} 秒")
+
+
+print("=" * 100)

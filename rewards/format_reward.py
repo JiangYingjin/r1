@@ -594,6 +594,7 @@ def format_reward(completions, debug=False, **kwargs) -> List[float]:
 
             print("--------------------------------------")
 
+    print(f"Format Rewards: {[round(score, 3) for score in final_rewards]}")
     return final_rewards
 
 

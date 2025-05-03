@@ -126,7 +126,11 @@ def reasoning_reward(completions, **kwargs) -> List[float]:
 
         return reward
 
-    return [_score_single_completion(c) for c in _completions]
+    reasoning_rewards = [_score_single_completion(c) for c in _completions]
+    print(
+        f"Reasoning Rewards: {[round(score, 3) for score in reasoning_rewards]}"
+    )
+    return reasoning_rewards
 
 
 # --- 辅助函数 (需要修改或确认 extract_tag_content 支持 strip_content=False) ---

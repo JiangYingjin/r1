@@ -150,4 +150,8 @@ def reasoning_efficiency_reward(
         efficiency_rewards.append(reward)
         # --- End of Single Completion Calculation ---
 
+    print(
+        f"Reasoning Efficiency Rewards: {[round(score, 3) for score in efficiency_rewards]}"
+    )
+    print("\n" + "=" * 100 + "\n")
     return efficiency_rewards  # 保持返回值不变

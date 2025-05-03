@@ -80,7 +80,9 @@ def length_reward(completions, **kwargs) -> List[float]:
 
         return final_reward
 
-    return [_score_single_completion(c) for c in _completions]
+    length_rewards = [_score_single_completion(c) for c in _completions]
+    print(f"Length Rewards: {[round(score, 3) for score in length_rewards]}")
+    return length_rewards
 
 
 if __name__ == "__main__":

@@ -29,6 +29,33 @@ def correctness_reward(
     _completions = completions_to_lst(completions)
     _answers = answer  # 使用传入的 answer 列表
 
+    # 设定分隔线长度
+    line_len = 90
+    answer_title = " Answer "
+    completion_title_tpl = " Completion {} "
+
+    # 打印 Answer 部分
+    print(
+        "\n"
+        + "=" * ((line_len - len(answer_title)) // 2)
+        + answer_title
+        + "=" * ((line_len - len(answer_title) + 1) // 2)
+    )
+    print(_answers[0])
+    print("=" * line_len)
+
+    # 打印每个 Completion
+    for i, completion in enumerate(_completions):
+        title = completion_title_tpl.format(i)
+        print(
+            "\n"
+            + "=" * ((line_len - len(title)) // 2)
+            + title
+            + "=" * ((line_len - len(title) + 1) // 2)
+        )
+        print(completion)
+        print("=" * line_len)
+
     if len(_completions) != len(_answers):
         raise ValueError("Completions list and answers list must have the same length.")
 
@@ -100,7 +127,11 @@ def correctness_reward(
         return 0.0
 
     # 对每个 completion 和对应的 answer 计算分数
-    return [
+    correctness_scores = [
         _check_answer_correctness(_completions[i], _answers[i])
         for i in range(len(_completions))
     ]
+
+    print("\n" + "=" * 100 + "\n")
+    print(f"Correctness Rewards: {[round(score, 3) for score in correctness_scores]}")
+    return correctness_scores
