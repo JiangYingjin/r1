@@ -3,6 +3,8 @@ from math_verify import parse, verify
 import json
 import datetime
 from system_prompt import SYSTEM_PROMPT
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 
 model = "Qwen2.5-3B-Instruct"
 gsm8k_test_path = Path("eval/datasets/gsm8k_test.jsonl")
@@ -29,6 +31,7 @@ print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 out_file = out_dir / f"{timestamp}.jsonl"
+print(f"Predict results will be saved to: {out_file}")
 
 llm = LLM(model, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
 
@@ -110,22 +113,25 @@ def verify_and_calculate_accuracy(result_file: Path):
     return accuracy
 
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
-
 # 批量获取 LLM 响应并写入文件
-with ThreadPoolExecutor(max_workers=32) as executor:
-    futures = [
-        executor.submit(get_llm_response, d["question"], d["answer"])
-        for d in gsm8k_test_data
-    ]
-    for future in tqdm(
-        as_completed(futures), total=len(futures), desc="Getting LLM responses"
-    ):
-        try:
-            future.result()
-        except Exception as e:
-            print(f"任务执行出错: {e}")
+try:
+    with ThreadPoolExecutor(max_workers=32) as executor:
+        futures = [
+            executor.submit(get_llm_response, d["question"], d["answer"])
+            for d in gsm8k_test_data
+        ]
+        for future in tqdm(
+            as_completed(futures), total=len(futures), desc="Getting LLM responses"
+        ):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"任务执行出错: {e}")
+
+except KeyboardInterrupt:
+    print("用户手动停止")
 
 # 验证和统计
 accuracy = verify_and_calculate_accuracy(out_file)
+
+# accuracy = verify_and_calculate_accuracy(Path("eval/20250503_232504.jsonl"))
