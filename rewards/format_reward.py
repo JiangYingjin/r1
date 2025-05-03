@@ -24,34 +24,38 @@ LATEX_BOXED_PATTERN = re.compile(
 # Removed unused regex patterns for newlines
 
 
-# --- Rewards ---
-R_TAG_EXISTS_ONCE = 0.10  # Max 0.40
-R_CORRECT_PAIR_ORDER = 0.05  # Max 0.10
-R_CORRECT_BLOCK_ORDER = 0.05
-R_NEWLINE_AFTER_OPEN = 0.05  # Max 0.10
-R_NEWLINE_BEFORE_CLOSE = 0.05  # Max 0.10
-R_NEWLINE_BETWEEN_BLOCKS = 0.10
-R_PERFECT_MATCH_EXTERNAL = 0.20  # ONLY for NO_FINAL_NL pattern AND ending
-
-# LaTeX specific rewards (within <answer> block content)
-R_LATEX_DOLLARS_PRESENT = 0.10  # Presence of at least two $$
-R_LATEX_BOXED_PRESENT = 0.10  # Presence of \boxed{...} within $$...$$
-R_LATEX_NEWLINE_BEFORE_BOXED = 0.05  # Presence of \n *immediately* after first $$
-R_LATEX_NEWLINE_AFTER_BOXED = 0.05  # Presence of \n *immediately* before last $$
-R_LATEX_PERFECT_BLOCK = (
-    0.20  # Bonus triggered if all 4 above LaTeX components are present.
+# --- Rewards (Adjusted for Max Score = 1.2) ---
+R_TAG_EXISTS_ONCE = 0.10  # Max 0.40 (Unchanged)
+R_CORRECT_PAIR_ORDER = 0.05  # Max 0.10 (Unchanged)
+R_CORRECT_BLOCK_ORDER = 0.05  # Max 0.05 (Unchanged)
+R_NEWLINE_AFTER_OPEN = 0.05  # Max 0.10 (Unchanged)
+R_NEWLINE_BEFORE_CLOSE = 0.05  # Max 0.10 (Unchanged)
+R_NEWLINE_BETWEEN_BLOCKS = (
+    0.05  # Max 0.05 (Adjusted from 0.10) - Reduced stylistic reward
+)
+R_PERFECT_MATCH_EXTERNAL = (
+    0.05  # Max 0.05 (Adjusted from 0.20) - Reduced perfection bonus
 )
 
+# LaTeX specific rewards (within <answer> block content)
+R_LATEX_DOLLARS_PRESENT = 0.10  # Max 0.10 (Unchanged)
+R_LATEX_BOXED_PRESENT = 0.10  # Max 0.10 (Unchanged)
+R_LATEX_NEWLINE_BEFORE_BOXED = (
+    0.05  # Max 0.05 (Unchanged) - Refers to newline after first $$
+)
+R_LATEX_NEWLINE_AFTER_BOXED = (
+    0.05  # Max 0.05 (Unchanged) - Refers to newline before last $$
+)
+R_LATEX_PERFECT_BLOCK = 0.05  # Max 0.05 (Adjusted from 0.20) - Reduced perfection bonus
 
-# --- Penalties ---
+# --- Penalties (Unchanged) ---
 P_TAG_DUPLICATED = -0.20
 P_CONTENT_OUTSIDE_BASE = -0.10
 P_CONTENT_OUTSIDE_PER_CHAR = -0.005
 P_EMPTY_CONTENT = -0.20
 P_ORDER_VIOLATION = -0.15
 
-
-# --- Reward Limits ---
+# --- Reward Limits (Unchanged) ---
 MIN_REWARD_FLOOR = -1.5
 
 

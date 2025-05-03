@@ -14,11 +14,11 @@ def get_gsm8k_questions(split="train") -> Dataset:
 
     data = data.map(
         lambda x: {  # type: ignore
-            "prompt": [
+            "prompt": [  # 必须包含列 prompt！
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": x["question"]},
             ],
-            "answer": x["answer"],
+            "answer": x["answer"], # 用于在奖励函数中获取奖励
             # "answer": extract_hash_answer(x["answer"]),
         }
     )  # type: ignore
