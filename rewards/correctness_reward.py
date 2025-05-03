@@ -1,5 +1,4 @@
-# In rewards/math_correctness_reward.py
-from math_verify import parse, verify  # 假设这两个函数可用
+from math_verify import parse, verify
 from .reward_utils import extract_tag_content, completions_to_lst
 from typing import List
 
@@ -10,74 +9,97 @@ PENALTY_INCORRECT_ANSWER = -0.5  # 答案错误惩罚
 PENALTY_VERIFICATION_ERROR = -0.1  # 验证异常惩罚
 
 
-def calculate_math_correctness_reward(
-    completions, answer: List[str], **kwargs
-) -> float:
+def correctness_reward(
+    completions,
+    answer: List[str],  # 同一个 answer，重复 num_generations 次
+    **kwargs,
+) -> List[float]:  # 返回值应为 List[float]
     """
     Calculates the reward based on the mathematical correctness of the answer.
     Prioritizes the <answer> tag, falls back to <think> if answer is incorrect/missing.
+    Applies parse() to both completion content and ground truth before verify().
 
     Args:
-        completion: The full response string from the model.
-        answer: The original mathematical answer string.
+        completions: List of model response strings or processable format.
+        answer: List of ground truth answer strings.
 
     Returns:
-        The correctness reward score.
+        A list of correctness reward scores.
     """
-
-    print(completions, answer)
-
     _completions = completions_to_lst(completions)
-    print(_completions)
+    _answers = answer  # 使用传入的 answer 列表
 
-    _answers = answer  # answer 是数据集参数名
+    if len(_completions) != len(_answers):
+        raise ValueError("Completions list and answers list must have the same length.")
 
-    def _check_answer_correctness(completion: str, answer: str) -> float:
-        answer_content = extract_tag_content(completion, "answer")
-        parsed_and_verified_answer = False  # 标记 answer 是否已被正确 parse 并 verify
+    def _check_answer_correctness(completion: str, single_answer: str) -> float:
+        """检查单个 completion 的正确性分数"""
+        try:
+            # 1. 首先解析标准答案 (只执行一次)
+            parsed_gold = parse(single_answer)
+            if parsed_gold is None:  # 或其他表示解析失败的返回值
+                print(f"Warning: Failed to parse ground truth answer: {single_answer}")
+                return PENALTY_VERIFICATION_ERROR  # 如果标准答案都无法解析，给错误惩罚
+        except Exception as e:
+            print(f"Warning: Error parsing ground truth answer '{single_answer}': {e}")
+            return PENALTY_VERIFICATION_ERROR
 
-        # 1. 先检查 <answer> 标签
-        if answer_content:
+        completion_answer_content = extract_tag_content(completion, "answer")
+        parsed_completion_answer = None
+        answer_parse_ok = False
+
+        # 2. 尝试解析和验证 <answer> 标签内容
+        if completion_answer_content:
             try:
-                parsed_answers = parse(answer_content)
-                if parsed_answers:  # parse 成功
-                    if verify(
-                        answer, answer_content
-                    ):  # 或 verify(answer, parsed_answers[0])
-                        # verify 成功
-                        parsed_and_verified_answer = True
-                        return REWARD_CORRECT_IN_ANSWER
+                parsed_completion_answer = parse(completion_answer_content)
+                if (
+                    parsed_completion_answer is not None
+                ):  # 检查 parse 是否成功返回有效结果
+                    answer_parse_ok = True
+                    if verify(parsed_gold, parsed_completion_answer):
+                        return REWARD_CORRECT_IN_ANSWER  # 验证成功，返回最高奖励
                     else:
-                        # verify 失败，答案错误
+                        # 解析成功，但验证失败 (答案错误)
                         return PENALTY_INCORRECT_ANSWER
-                # parse 失败，继续检查 <think>
+                # else: parse 失败 (返回 None 或类似值)，继续检查 think
             except Exception as e:
-                print(f"Warning: Error during answer verification: {e}")
+                print(f"Warning: Error during answer content parsing/verification: {e}")
+                # 发生异常，可以给错误惩罚，或者保守起见继续检查 think (这里选择给错误惩罚并停止)
+                return PENALTY_VERIFICATION_ERROR
+
+        # 3. 如果 <answer> 未提取到内容，或解析失败，或未验证成功，则尝试检查 <think>
+        # 注意：如果上面因为答案错误 (PENALTY_INCORRECT_ANSWER) 或异常 (PENALTY_VERIFICATION_ERROR) 返回了，就不会执行到这里
+
+        completion_think_content = extract_tag_content(completion, "think")
+        parsed_completion_think = None
+        think_parse_ok = False
+
+        if completion_think_content:
+            try:
+                parsed_completion_think = parse(completion_think_content)
+                if parsed_completion_think is not None:  # 检查 parse 是否成功
+                    think_parse_ok = True
+                    # *** 关键修正：使用 parsed_completion_think 进行验证 ***
+                    if verify(parsed_gold, parsed_completion_think):
+                        # 在 <think> 中验证成功
+                        return REWARD_CORRECT_IN_THINK_ONLY
+                    else:
+                        # <think> 中解析成功，但验证失败 (答案错误)
+                        # 只有在 <answer> 部分没有给出错误惩罚时，才在这里给出
+                        # （当前逻辑下，如果 answer 错误会直接返回，所以这里可以安全返回）
+                        return PENALTY_INCORRECT_ANSWER
+                # else: parse 失败，继续到最后返回 0.0
+            except Exception as e:
+                print(f"Warning: Error during think content parsing/verification: {e}")
                 return PENALTY_VERIFICATION_ERROR  # 验证异常惩罚
 
-        # 2. 如果 <answer> 没有被正确 parse+verify，再检查 <think> 标签
-        if not parsed_and_verified_answer:
-            think_content = extract_tag_content(completion, "think")
-            if think_content:
-                try:
-                    parsed_thinks = parse(think_content)
-                    if parsed_thinks:  # parse 成功
-                        if verify(
-                            answer, think_content
-                        ):  # 或 verify(answer, parsed_thinks[0])
-                            # verify 成功
-                            return REWARD_CORRECT_IN_THINK_ONLY
-                        else:
-                            # verify 失败，答案错误
-                            return PENALTY_INCORRECT_ANSWER
-                    # parse 失败，返回 0.0
-                except Exception as e:
-                    print(f"Warning: Error during think verification: {e}")
-                    return PENALTY_VERIFICATION_ERROR  # 验证异常惩罚
-
-        # 3. 都没命中，返回 0.0
+        # 4. 如果 <answer> 和 <think> 都没有成功验证答案
+        #    包括：标签不存在、内容为空、解析失败 (返回None)
+        #    或者 answer 验证错误、think 验证错误（这些情况已在上面返回）
+        #    理论上能到这里的主要是标签/内容缺失或解析失败的情况
         return 0.0
 
+    # 对每个 completion 和对应的 answer 计算分数
     return [
         _check_answer_correctness(_completions[i], _answers[i])
         for i in range(len(_completions))

@@ -30,6 +30,7 @@ def get_token_count(text: Optional[str]) -> int:
     if not text:
         return 0
     try:
+        # disallowed_special=() 确保特殊token被正常处理而不是引发错误
         return len(encoder.encode(text, disallowed_special=()))
     except Exception as e:
         print(f"Warning: Tiktoken encoding failed for text snippet: {e}")
@@ -37,40 +38,40 @@ def get_token_count(text: Optional[str]) -> int:
 
 
 # --- Main Self-Contained Reward Function ---
-
-
-def calculate_reasoning_efficiency_reward_self_contained(
-    completions, answer: List[str], **kwargs
-) -> List[float]:
+def reasoning_efficiency_reward(
+    completions, answer: List[str], **kwargs  # 保持函数签名不变
+) -> List[float]:  # 保持返回值类型不变
     """
     Calculates a self-contained, continuous reasoning efficiency reward.
 
-    Internally checks answer correctness and <think> block token length,
-    then applies a smooth interpolation between reward/penalty boundaries.
+    Internally checks answer correctness (using parse before verify) and
+    <think> block token length, then applies a smooth interpolation
+    between reward/penalty boundaries.
 
     Args:
         completions: List of model response strings (or processable by completions_to_lst).
-        problems: List of original problem strings.
-        answers: List of ground truth answer strings.
+        answer: List of ground truth answer strings. # 注意：参数名是 answer，对应数据集的答案列
+        **kwargs: Catches any other potential arguments passed.
 
     Returns:
         A list of reasoning efficiency reward scores.
     """
     _completions = completions_to_lst(completions)
-    _answers = answer
+    _answers = answer  # 使用传入的 answer 列表
 
     if not (len(_completions) == len(_answers)):
+        # 注意：你之前的代码签名中没有 problems，所以这里只比较 completions 和 answers
         raise ValueError(
-            "Input lists (completions, problems, answers) must have the same length."
+            "Input lists (completions, answers) must have the same length."
         )
 
     efficiency_rewards = []
 
     for idx in range(len(_completions)):
         completion = _completions[idx]
-        answer = _answers[idx]
+        single_answer = _answers[idx]  # 获取当前对应的标准答案
 
-        # --- Internal Calculation Steps for a Single Completion ---
+        # --- Internal Calculation Steps ---
 
         # 1. Extract Content
         think_content = extract_tag_content(completion, "think")
@@ -79,67 +80,74 @@ def calculate_reasoning_efficiency_reward_self_contained(
         # 2. Calculate Think Length (Tokens)
         think_length_tokens = get_token_count(think_content)
 
-        # 3. Determine Correctness (Internal Check)
+        # --- 3. Determine Correctness (Internal Check with PARSE FIRST) ---
         is_correct = False
-        # Check answer tag first
-        if answer_content:
-            try:
-                # Note: Depending on verify/parse, you might need the raw or parsed content.
-                # Using raw content here for simplicity, adjust if parse is needed before verify.
-                if verify(
-                    answer, answer_content
-                ):  # Assuming verify(ground_truth, model_output)
-                    is_correct = True
-            except Exception as e:
-                # Log error if needed, but treat as incorrect for reward calculation
-                print(f"Warning: Exception during answer content verification: {e}")
-                pass
+        parsed_gold = None  # 用于存储解析后的标准答案
 
-        # If answer wasn't correct, check think tag
-        if not is_correct and think_content:
-            try:
-                if verify(answer, think_content):
-                    is_correct = True
-            except Exception as e:
-                print(f"Warning: Exception during think content verification: {e}")
-                pass
+        try:
+            # 尝试解析标准答案
+            parsed_gold = parse(single_answer)
+            if parsed_gold is None:  # 检查 parse 是否成功解析标准答案
+                print(f"Warning: Failed to parse ground truth answer: {single_answer}")
+                # is_correct 保持 False
+        except Exception as e:
+            print(f"Warning: Error parsing ground truth answer '{single_answer}': {e}")
+            # is_correct 保持 False
 
-        # 4. Calculate the Weight using the logistic function
+        # 只有在标准答案成功解析后，才继续检查模型的输出
+        if parsed_gold is not None:
+            # 检查 <answer> 标签内容
+            if answer_content:
+                try:
+                    parsed_completion_answer = parse(answer_content)
+                    # 检查模型输出的 answer 内容是否成功解析
+                    if parsed_completion_answer is not None:
+                        # *** 关键修正：使用解析后的对象进行验证 ***
+                        if verify(parsed_gold, parsed_completion_answer):
+                            is_correct = True  # 标记为正确
+                except Exception as e:
+                    print(
+                        f"Warning: Exception during answer content parsing/verification: {e}"
+                    )
+                    # 解析或验证异常，视为不正确，is_correct 保持 False
+
+            # 只有在 <answer> 没有验证成功的情况下，才检查 <think> 标签内容
+            if not is_correct and think_content:
+                try:
+                    parsed_completion_think = parse(think_content)
+                    # 检查模型输出的 think 内容是否成功解析
+                    if parsed_completion_think is not None:
+                        # *** 关键修正：使用解析后的对象进行验证 ***
+                        if verify(parsed_gold, parsed_completion_think):
+                            is_correct = True  # 标记为正确
+                except Exception as e:
+                    print(
+                        f"Warning: Exception during think content parsing/verification: {e}"
+                    )
+                    # 解析或验证异常，视为不正确，is_correct 保持 False
+        # --- End of Correctness Check ---
+
+        # 4. Calculate the Weight using the logistic function (逻辑保持不变)
         exponent = TRANSITION_STEEPNESS * (think_length_tokens - PIVOT_LENGTH)
-        weight = 1.0 / (
-            1.0 + math.exp(exponent)
-        )  # Weight close to 1 for short, close to 0 for long
+        weight = 1.0 / (1.0 + math.exp(exponent))
 
-        # 5. Calculate final reward using interpolation based on correctness and weight
+        # 5. Calculate final reward using interpolation (逻辑保持不变)
         reward = 0.0
         if is_correct:
-            # Interpolate between EFFICIENT (high reward, short) and THOROUGH (lower reward, long)
             reward = (
                 weight * REWARD_EFFICIENT_CORRECT
                 + (1.0 - weight) * REWARD_THOROUGH_CORRECT
             )
         else:
-            # Interpolate between LAZY (high penalty, short) and EFFORTFUL (lower penalty, long)
             reward = (
                 weight * PENALTY_LAZY_INCORRECT
                 + (1.0 - weight) * PENALTY_EFFORTFUL_INCORRECT
             )
 
-        # Optional: Clipping reward to prevent extreme values outside the defined range
+        # Optional: Clipping reward (逻辑保持不变)
         # reward = max(PENALTY_LAZY_INCORRECT - 0.1, min(reward, REWARD_EFFICIENT_CORRECT + 0.1))
 
         efficiency_rewards.append(reward)
         # --- End of Single Completion Calculation ---
 
-    return efficiency_rewards
-
-
-# --- Example Usage ---
-# Assume necessary imports and helper functions are available
-# completions_data = [...]
-# problems_data = [...]
-# answers_data = [...]
-# efficiency_scores = calculate_reasoning_efficiency_reward_self_contained(
-#     completions_data, problems_data, answers_data
-# )
-# print("Self-Contained Reasoning Efficiency Rewards:", [round(r, 4) for r in efficiency_scores])
+    return efficiency_rewards  # 保持返回值不变

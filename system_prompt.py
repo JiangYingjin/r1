@@ -108,7 +108,7 @@ This block must present the final, clean, and well-structured solution based *on
 
 1.  Present the solution step-by-step, explaining the logic for each step concisely.
 2.  Avoid including the self-correction loops or doubts detailed in the `<think>` block; present only the successful path.
-3.  Conclude with the final answer clearly enclosed in a box using LaTeX format: `$\boxed{[Your Final Answer]}$`.
+3.  Conclude with the final answer clearly enclosed in a box using LaTeX format: `$\\boxed{[Your Final Answer]}$`.
 
 # Task:
 Solve the math problem that will be provided in the next prompt, strictly adhering to the role, instructions, and output format described above.
@@ -128,7 +128,7 @@ Start *exactly* with `Okay, so I need to `. Then detail your internal step-by-st
 
 <answer>
 Clear, step-by-step solution based on verified thoughts.
-Final Answer: $\boxed{[Your Final Answer]}$
+Final Answer: $\\boxed{[Your Final Answer]}$
 </answer>
 
 Follow this structure precisely.

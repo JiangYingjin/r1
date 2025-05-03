@@ -3,7 +3,7 @@ from typing import List, Dict, Tuple
 from rewards.reward_utils import completions_to_lst
 
 
-def format_reward_func(completions, **kwargs) -> List[float]:
+def format_reward(completions, **kwargs) -> List[float]:
     """
     Calculates a refined reward score for completions based on adherence
     to the <think>...</think>\n<answer>...</answer> format, with stricter checks.
@@ -378,8 +378,8 @@ if __name__ == "__main__":
         "Bad format",
     ]  # 10, 11
 
-    rewards1 = format_reward_func(completions_data_1)
-    rewards2 = format_reward_func(completions_data_2)
+    rewards1 = format_reward(completions_data_1)
+    rewards2 = format_reward(completions_data_2)
 
     # Print rounded results for easier comparison
     print("Refined Rewards 1:", [round(r, 4) for r in rewards1])

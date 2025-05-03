@@ -96,11 +96,11 @@ def main():
             report_to="wandb",
         ),
         reward_funcs=[
-            format_reward.format_reward_func,
-            correctness_reward.calculate_math_correctness_reward,
-            length_reward.calculate_length_reward,
-            reasoning_reward.calculate_reasoning_reward,
-            reasoning_efficiency_reward.calculate_reasoning_efficiency_reward_self_contained,
+            format_reward.format_reward,
+            correctness_reward.correctness_reward,
+            length_reward.length_reward,
+            reasoning_reward.reasoning_reward,
+            reasoning_efficiency_reward.reasoning_efficiency_reward,
         ],
     )
     trainer.train()

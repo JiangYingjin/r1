@@ -36,7 +36,7 @@ def get_token_count(text: str) -> int:
     return len(encoder.encode(text, disallowed_special=()))
 
 
-def calculate_length_reward(completions, **kwargs) -> List[float]:
+def length_reward(completions, **kwargs) -> List[float]:
     """
     Calculates a reward based on the length of the content within the <think> tag.
     Encourages longer thinking processes up to a point, penalizes excessive length.
@@ -100,5 +100,5 @@ if __name__ == "__main__":
         "<think></think><answer>Empty think</answer>",
     ]
 
-    rewards = calculate_length_reward(completions_data)
+    rewards = length_reward(completions_data)
     print("Length Rewards:", [round(r, 4) for r in rewards])

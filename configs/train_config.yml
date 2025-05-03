@@ -2,7 +2,7 @@
 experiment:
   model: Qwen/Qwen2.5-3B-Instruct
   # model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
-  name: new_reward_2  # 实验名称，可通过命令行参数覆盖
+  name: new_reward_3  # 实验名称，可通过命令行参数覆盖
   description: |
 
 # GPU 参数
@@ -14,7 +14,7 @@ gpu:
 training:
   grpo_num_generations: 6   # 若 OOM，可降低此值
   total_steps: 1500
-  save_steps: 200
+  save_steps: 100
 
 # 随机种子
 random_state: 999
