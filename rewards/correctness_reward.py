@@ -11,10 +11,8 @@ PENALTY_VERIFICATION_ERROR = -0.1  # 验证异常惩罚
 
 
 def correctness_reward(
-    prompts,
     completions,
     answer: List[str],  # 同一个 answer，重复 num_generations 次
-    _prompt,
     **kwargs,
 ) -> List[float]:  # 返回值应为 List[float]
     """
@@ -31,19 +29,19 @@ def correctness_reward(
     """
     start_time = time.time()
 
-    _prompt = prompts[0][-1]["content"]
     _completions = completions_to_lst(completions)
     _answers = answer  # 使用传入的 answer 列表
 
     _question_id = kwargs.get("id")
+    _question = kwargs.get("question")
     _question_difficulty = kwargs.get("difficulty")
 
     # 设定分隔线长度
     line_len = 90
-    prompt_title = (
+    question_title = (
         " Question "
-        + (f"{_question_id} " if _question_id else "")
-        + (f"({_question_difficulty})" if _question_difficulty else "")
+        + (f"{_question_id[0]} " if _question_id else "")
+        + (f"({_question_difficulty[0]})" if _question_difficulty else "")
     )
     answer_title = " Answer "
     completion_title_tpl = " Completion {} "
@@ -51,11 +49,11 @@ def correctness_reward(
     # 打印 Prompt 部分
     print(
         "\n"
-        + "=" * ((line_len - len(prompt_title)) // 2)
-        + prompt_title
-        + "=" * ((line_len - len(prompt_title) + 1) // 2)
+        + "=" * ((line_len - len(question_title)) // 2)
+        + question_title
+        + "=" * ((line_len - len(question_title) + 1) // 2)
     )
-    print(_prompt)
+    print(_question[0])
     print("=" * line_len)
 
     # 打印 Answer 部分

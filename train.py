@@ -103,7 +103,7 @@ def main():
             max_grad_norm=0.1,
             output_dir=ckpt_out_dir,
             report_to="wandb",
-            shuffle_dataset=False,
+            # shuffle_dataset=False, # TRL==0.17.0 才有此参数
         ),
         reward_funcs=[
             correctness_reward.correctness_reward,
