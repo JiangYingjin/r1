@@ -4,14 +4,6 @@ Unsloth
 Unsloth_Zoo
 wandb
 
-TRL
-Torch
-TorchVision
-
-# TRL==0.17.0
-# Torch==2.6.0
-# TorchVision==0.22.0
-
 # 验证答案
 Math-Verify==0.5.2
 

@@ -1,12 +1,19 @@
-from datasets import load_dataset, Dataset
+from datasets import load_dataset, Dataset, IterableDataset
 from system_prompt import SYSTEM_PROMPT
 from math_verify import parse, verify
 
 
-def extract_hash_answer(text: str) -> str | None:
-    if "####" not in text:
-        return None
-    return text.split("####")[1].strip()
+# class MapToIterableDataset(IterableDataset):
+#     def __init__(self, dataset: Dataset):
+#         self.dataset = dataset
+#         self._epoch = 0
+
+#     def __iter__(self):
+#         for i in range(len(self.dataset)):
+#             yield self.dataset[i]
+
+#     # def __len__(self):
+#     #     return len(self.dataset)
 
 
 # uncomment middle messages for 1-shot prompting
@@ -41,7 +48,7 @@ def get_math_questions() -> Dataset:
     return data
 
 
-def get_gsmplus600_questions(split="train") -> Dataset:
+def get_gsmplus600_questions(split="train") -> IterableDataset:
     """加载并组织 gsmplus_600 数据集"""
     # 注意：gsmplus_600.jsonl 是一个本地文件，使用 json 格式加载
     data = load_dataset("json", data_files="data/processed/gsmplus_600.jsonl")[split]  # type: ignore
@@ -57,8 +64,11 @@ def get_gsmplus600_questions(split="train") -> Dataset:
                 {"role": "user", "content": x["question"]},
             ],
         }
-    )  # type: ignore
-    return data  # type: ignore
+    )
+
+    # TRL==0.17.0 之前没有控制数据集 shuffle 的入参，推测可以通过 IterableDataset 来避免数据集被 shuffle
+    # return MapToIterableDataset(data)
+    return data
 
 
 if __name__ == "__main__":
@@ -74,11 +84,15 @@ if __name__ == "__main__":
 
     gsmplus600_dataset = get_gsmplus600_questions()
     print("加载并转换后的gsmplus_600数据集样本:")
-    for i in range(min(3, len(gsmplus600_dataset))):
-        print(f"样本 {i+1}:")
-        print(f"  ID: {gsmplus600_dataset[i]['id']}")
-        print(f"  Question: {gsmplus600_dataset[i]['question']}")
-        print(f"  Answer: {gsmplus600_dataset[i]['answer']}")
-        print(f"  Difficulty: {gsmplus600_dataset[i]['difficulty']}")
-        print(f"  Prompt: {gsmplus600_dataset[i]['prompt']}")
+    count = 0
+    for sample in gsmplus600_dataset:
+        if count >= 3:
+            break
+        print(f"样本 {count+1}:")
+        print(f"  ID: {sample['id']}")
+        print(f"  Question: {sample['question']}")
+        print(f"  Answer: {sample['answer']}")
+        print(f"  Difficulty: {sample['difficulty']}")
+        print(f"  Prompt: {sample['prompt']}")
         print("-" * 20)
+        count += 1

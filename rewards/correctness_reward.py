@@ -41,7 +41,7 @@ def correctness_reward(
     question_title = (
         " Question "
         + (f"{_question_id[0]} " if _question_id else "")
-        + (f"({_question_difficulty[0]})" if _question_difficulty else "")
+        + (f"（{_question_difficulty[0]}） " if _question_difficulty else "")
     )
     answer_title = " Answer "
     completion_title_tpl = " Completion {} "
