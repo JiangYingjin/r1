@@ -83,7 +83,7 @@ def main():
         train_dataset=dataset,
         args=GRPOConfig(
             use_vllm=True,  # use vLLM for fast inference!
-            learning_rate=5e-6,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值
+            learning_rate=5e-6,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
             adam_beta1=0.9,
             adam_beta2=0.99,
             weight_decay=0.1,
@@ -103,6 +103,7 @@ def main():
             max_grad_norm=0.1,
             output_dir=ckpt_out_dir,
             report_to="wandb",
+            shuffle_dataset=False,
         ),
         reward_funcs=[
             correctness_reward.correctness_reward,
