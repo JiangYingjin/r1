@@ -10,8 +10,7 @@ from rewards import (
     reasoning_reward,
     reasoning_efficiency_reward,
 )
-from data_preparation import get_gsm8k_questions
-from system_prompt import SYSTEM_PROMPT
+from data_preparation import get_gsmplus600_questions
 
 
 def load_config(config_path="configs/train_config.yml"):
@@ -68,7 +67,7 @@ def main():
         )
         exit()
 
-    dataset = get_gsm8k_questions()
+    dataset = get_gsmplus600_questions()
 
     # 初始化 wandb
     wandb.init(
