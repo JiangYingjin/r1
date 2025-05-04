@@ -5,7 +5,7 @@ from math_verify import parse, verify
 from tqdm import tqdm
 
 # 输入文件路径
-input_file = Path("eval/datasets/gsm8k_math_resp.jsonl")
+input_file = Path("data/processed/gsm8k_math_resp.jsonl")
 # 确保输入文件存在
 if not input_file.exists():
     raise FileNotFoundError(f"输入文件不存在: {input_file}")
@@ -97,7 +97,7 @@ for question_id, data in results.items():
     serializable_results[question_id] = serializable_data
 
 # 将结果保存到文件 (JSONL格式，按ID升序)
-output_file = Path("eval/datasets/gsm8k_math_resp_analysis.jsonl")
+output_file = Path("data/processed/gsm8k_math_resp_analysis.jsonl")
 # 获取结果列表并按ID排序
 sorted_results = sorted(serializable_results.values(), key=lambda x: x["id"])
 with output_file.open("w", encoding="utf-8") as f:
