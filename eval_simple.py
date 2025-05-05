@@ -9,15 +9,73 @@ from system_prompt import SYSTEM_PROMPT
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-model = "Qwen2.5-3B-Instruct"
+model_name = "Qwen/Qwen2.5-3B-Instruct"
+
+exp_name = "gsmplus600_course_1"
+step = 200
+
+ckpt_merged_dir = Path(
+    f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}_merged"
+)
+
 gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
-out_dir = Path("eval")
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-out_file = out_dir / f"{timestamp}.jsonl"
+out_file = Path("eval") / f"{timestamp}.jsonl"
+
+llm = LLM(model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
 
 
-llm = LLM(model, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
+def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
+    print(f"准备下载模型 ...")
+    subprocess.run(
+        f"curl sh.jyj.cx/baidu | bash -s - d /share/proj/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step} /root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt"
+    )
+    print(f"模型下载完毕，准备加载模型并合并 LoRA ...")
+
+    merged_dir = f"/share/proj/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}_merged"
+
+    from unsloth import FastLanguageModel
+
+    print(f"Unsloth 加载完毕，开始加载模型 ...")
+
+    try:
+        model, tokenizer = FastLanguageModel.from_pretrained(
+            f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}"
+        )
+        print(f"模型加载完毕，准备合并（使用 merged_16bit 格式） ...")
+
+        model.save_pretrained_merged(merged_dir, tokenizer, save_method="merged_16bit")
+        print(f"模型合并完毕")
+
+    except Exception as e:
+        print(f"模型合并失败：{e}")
+
+
+def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = None):
+    """在后台运行 lmdeploy 服务器"""
+    subprocess.run(
+        [
+            "/root/miniconda/envs/lmdeploy/bin/lmdeploy",
+            "serve",
+            "api_server",
+            (
+                f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}_merged"
+                if exp_name
+                else f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
+            ),
+            "--chat-template",
+            "chat_template.json",
+            "--model-name",
+            model_name,
+            "--api-keys",
+            "sk-jiangyj",
+            "--tp",
+            "1",
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
 
 def load_gsm8k_test_data():
@@ -28,32 +86,6 @@ def load_gsm8k_test_data():
         {"question": d["question"], "answer": d["answer"].split("####")[-1].strip()}
         for d in gsm8k_test_data
     ]
-
-
-def run_lmdeploy_server():
-    """在后台运行 lmdeploy 服务器"""
-    subprocess.run(
-        [
-            "/root/miniconda/envs/lmdeploy/bin/lmdeploy",
-            "serve",
-            "api_server",
-            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/ckpt",
-            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt/checkpoint-100_merged",
-            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt/checkpoint-200_merged",
-            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt/checkpoint-300_merged",
-            "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/gsmplus600_course_1/ckpt/checkpoint-200_merged",
-            "--chat-template",
-            "chat_template.json",
-            "--model-name",
-            "Qwen2.5-3B-Instruct",
-            "--api-keys",
-            "sk-jiangyj",
-            "--tp",
-            "1",
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
 
 
 def get_llm_response(question: str, answer: str):
@@ -76,10 +108,6 @@ def verify_and_calculate_accuracy(result_file: Path):
     correct_count = 0
     total_count = 0
 
-    # # 打开错误结果文件
-    # wrong_file_path = result_file.with_name(f"{result_file.stem}_wrong.jsonl")
-    # wrong_file = wrong_file_path.open("w", encoding="utf-8")
-
     # 读取输出文件并进行验证和统计
     with result_file.open("r") as f:
         for line in tqdm(f, desc="Verifying and calculating accuracy"):
@@ -100,50 +128,36 @@ def verify_and_calculate_accuracy(result_file: Path):
                 result["parsed_answer"] = str(parsed_answer)
                 result["correct"] = is_correct
 
-                # 重新写入文件（可选，如果需要更新文件内容）
-                # with open(result_file, "r+") as f_write:
-                #     lines = f_write.readlines()
-                #     f_write.seek(0)
-                #     lines[total_count - 1] = json.dumps(result, ensure_ascii=False) + "\n"
-                #     f_write.writelines(lines)
-
                 if is_correct:
                     correct_count += 1
-                else:
-                    # 将错误结果写入文件
-                    # wrong_file.write(json.dumps(result, ensure_ascii=False) + "\n")
-                    pass
 
             except json.JSONDecodeError:
                 print(f"无法解析JSON行: {line}")
             except Exception as e:
                 print(f"验证或统计出错: {e}")
 
-    # # 关闭错误结果文件
-    # wrong_file.close()
-
     # 计算准确率
     accuracy = correct_count / total_count if total_count > 0 else 0
-
-    # 打印统计结果
     print(f"总题目数: {total_count}")
     print(f"正确答案数: {correct_count}")
     print(f"准确率: {accuracy:.2%}")
-
     return accuracy
 
 
 if __name__ == "__main__":
-    # 在后台线程中启动 lmdeploy 服务器
-    server_thread = threading.Thread(target=run_lmdeploy_server, daemon=True)
-    server_thread.start()
-    # 等待一段时间，确保服务器有足够时间启动
-    print("正在启动 lmdeploy 服务器，请稍候...")
+    # 检查合并后的ckpt目录是否存在，不存在则先下载并合并
+    if not ckpt_merged_dir.exists():
+        download_ckpt_and_merge(model_name, exp_name, step)
+
+    # 启动lmdeploy服务器，传递必要参数
+    threading.Thread(
+        target=deploy_model_lmdeploy, args=(model_name, exp_name, step), daemon=True
+    ).start()
+    print("正在启动 lmdeploy 服务器 ...")
 
     gsm8k_test_data = load_gsm8k_test_data()
     print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
     print(f"Predict results will be saved to: {out_file}")
-
 
     # 批量获取 LLM 响应并写入文件
     try:
@@ -165,5 +179,3 @@ if __name__ == "__main__":
 
     # 验证和统计
     accuracy = verify_and_calculate_accuracy(out_file)
-
-    # accuracy = verify_and_calculate_accuracy(Path("eval/20250503_232504.jsonl"))
