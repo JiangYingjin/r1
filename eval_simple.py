@@ -41,6 +41,7 @@ gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 out_file = Path("eval") / f"{timestamp}.jsonl"
+out_file.parent.mkdir(exist_ok=True)
 
 llm = LLM(model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
 
@@ -177,6 +178,7 @@ if __name__ == "__main__":
         target=deploy_model_lmdeploy, args=(model_name, exp_name, step), daemon=True
     ).start()
     print("正在启动 lmdeploy 服务器 ...")
+    time.sleep(1)
 
     gsm8k_test_data = load_gsm8k_test_data()
     print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
