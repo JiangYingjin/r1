@@ -9,7 +9,7 @@ from .reward_utils import completions_to_lst, extract_tag_content
 # Requirements: ~1.75 score at 1000 tokens, ~2.0 score at 1500 tokens.
 MAX_REWARD = 2.0  # The maximum possible reward score.
 TARGET_CENTER_LENGTH = (
-    750  # The token length where the reward reaches half of MAX_REWARD (1.0).
+    550  # The token length where the reward reaches half of MAX_REWARD (1.0).
 )
 # Adjusted L0 significantly lower to meet requirements.
 STEEPNESS_FACTOR = (
@@ -131,10 +131,27 @@ def length_reward(completions, **kwargs) -> List[float]:
 
 if __name__ == "__main__":
     # Example data structure assumed by completions_to_lst
-    # Using lengths designed to test the new curve points: ~200, ~750, ~1000, ~1500+
     base_unit = "Step-by-step thinking process. "  # Approx 5 tokens with gpt-4o encoder
-
-    completions_data = [
+    
+    # 基础测试样例
+    basic_completions = [
+        "<answer>No think tag</answer>",  # 0.0 reward
+        "<think></think><answer>Empty think</answer>",  # 0.0 reward
+        "<think>Short.</think><answer>F</answer>",  # Very short -> Expect near 0
+    ]
+    
+    # 重点关注 300-1000 词元范围，每 50 词元长度打印一次奖励
+    focus_completions = []
+    for tokens in range(300, 1050, 50):
+        # 计算需要多少个 base_unit 来达到目标词元数
+        # 假设每个 base_unit 约 5 个词元
+        units_needed = tokens // 5
+        focus_completions.append(
+            f"<think>\n{base_unit * units_needed}\n</think>\n<answer>Token_{tokens}</answer>"
+        )
+    
+    # 添加一些额外的参考点
+    extra_completions = [
         "<think>\n"
         + base_unit * 10
         + "\n</think>\n<answer>A</answer>",  # ~50 tokens -> Expect low reward
@@ -145,18 +162,15 @@ if __name__ == "__main__":
         + base_unit * 150
         + "\n</think>\n<answer>B</answer>",  # ~750 tokens -> Expect ~1.0 reward
         "<think>\n"
-        + base_unit * 200
-        + "\n</think>\n<answer>C</answer>",  # ~1000 tokens -> Expect ~1.76 reward
-        "<think>\n"
         + base_unit * 300
         + "\n</think>\n<answer>D</answer>",  # ~1500 tokens -> Expect ~1.995 reward
         "<think>\n"
         + base_unit * 400
         + "\n</think>\n<answer>E</answer>",  # ~2000 tokens -> Expect very close to 2.0
-        "<answer>No think tag</answer>",  # 0.0 reward
-        "<think></think><answer>Empty think</answer>",  # 0.0 reward
-        "<think>Short.</think><answer>F</answer>",  # Very short -> Expect near 0
     ]
+    
+    # 合并所有测试样例
+    completions_data = focus_completions + basic_completions + extra_completions
 
     # Make sure tiktoken is available or handled
     if encoder is None and not hasattr(get_token_count, "warned_char_fallback"):
@@ -181,41 +195,52 @@ if __name__ == "__main__":
 
     print(f"Approx tokens per base_unit: {approx_tokens_per_unit}")
     print("-" * 20)
-
-    multipliers = [
-        10,
-        40,
-        150,
-        200,
-        300,
-        400,
-        0,
-        0,
-        1,
-    ]  # Approximate multipliers for each example
-    for i, comp in enumerate(completions_data):
+    
+    # 打印结果
+    print("\n=== 重点关注区域 (300-1000 词元) ===")
+    focus_range = len(focus_completions)
+    for i in range(focus_range):
+        comp = completions_data[i]
         think_c = extract_tag_content(comp, "think")
         actual_length = get_token_count(think_c) if think_c else 0
-        # Use multiplier only for generated examples, not fixed ones
-        estimated_length_str = (
-            f"~{multipliers[i] * approx_tokens_per_unit}"
-            if i < 6
-            else f"{actual_length}"
-        )
-        if i == 8:  # Handle the 'Short.' case specifically
-            estimated_length_str = f"{actual_length}"
-
+        target_length = 300 + (i * 50)
+        
         print(
-            f"Completion {i+1}: Est. Len={estimated_length_str}, Actual Len={actual_length}, Reward={rewards[i]:.4f}"
+            f"词元长度 {target_length}: 实际长度={actual_length}, 奖励值={rewards[i]:.4f}"
         )
-
-    # Expected reward profile (approximate, with k=0.008, L0=750):
-    # 1: Len ~50, Reward ~0.001
-    # 2: Len ~200, Reward ~0.024
-    # 3: Len ~750, Reward ~1.000
-    # 4: Len ~1000, Reward ~1.762
-    # 5: Len ~1500, Reward ~1.995
-    # 6: Len ~2000, Reward ~1.999+
-    # 7: Len 0, Reward 0.0000
-    # 8: Len 0, Reward 0.0000
-    # 9: Len 1, Reward ~0.000 (Very low)
+    
+    print("\n=== 基础测试样例 ===")
+    for i in range(focus_range, focus_range + len(basic_completions)):
+        comp = completions_data[i]
+        think_c = extract_tag_content(comp, "think")
+        actual_length = get_token_count(think_c) if think_c else 0
+        
+        print(
+            f"样例 {i-focus_range+1}: 实际长度={actual_length}, 奖励值={rewards[i]:.4f}"
+        )
+    
+    print("\n=== 额外参考点 ===")
+    for i in range(focus_range + len(basic_completions), len(completions_data)):
+        comp = completions_data[i]
+        think_c = extract_tag_content(comp, "think")
+        actual_length = get_token_count(think_c) if think_c else 0
+        
+        # 估计长度
+        idx = i - (focus_range + len(basic_completions))
+        multipliers = [10, 40, 150, 300, 400]  # 额外参考点的乘数
+        estimated_length = multipliers[idx] * approx_tokens_per_unit
+        
+        print(
+            f"参考点 {idx+1}: 估计长度~{estimated_length}, 实际长度={actual_length}, 奖励值={rewards[i]:.4f}"
+        )
+    
+    # 奖励函数参考值
+    print("\n=== 奖励函数参考值 ===")
+    print(f"L0={TARGET_CENTER_LENGTH}, k={STEEPNESS_FACTOR}, MAX_REWARD={MAX_REWARD}")
+    print("预期奖励值 (近似值):")
+    print("- 50 词元: ~0.001")
+    print("- 200 词元: ~0.024")
+    print("- 750 词元: ~1.000")
+    print("- 1000 词元: ~1.762")
+    print("- 1500 词元: ~1.995")
+    print("- 2000 词元: ~1.999+")

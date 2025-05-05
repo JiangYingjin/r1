@@ -2,7 +2,7 @@ from unsloth import FastLanguageModel
 from pathlib import Path
 from tqdm import tqdm
 
-CKPT_DIR = Path("/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt")
+CKPT_DIR = Path("/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/gsmplus600_course_1/ckpt")
 
 
 def find_checkpoints(ckpt_dir: Path):

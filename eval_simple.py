@@ -2,13 +2,43 @@ from lib import *
 from math_verify import parse, verify
 import json
 import datetime
+import subprocess
+import threading
+import time
 from system_prompt import SYSTEM_PROMPT
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
 model = "Qwen2.5-3B-Instruct"
-gsm8k_test_path = Path("eval/datasets/gsm8k_test.jsonl")
+gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
 out_dir = Path("eval")
+
+
+def run_lmdeploy_server():
+    """在后台运行 lmdeploy 服务器"""
+    subprocess.run(
+        [
+            "/root/miniconda/envs/lmdeploy/bin/lmdeploy",
+            "serve",
+            "api_server",
+            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/ckpt",
+            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt/checkpoint-100_merged",
+            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt/checkpoint-200_merged",
+            # "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/better_reward_3/ckpt/checkpoint-300_merged",
+            "/root/lanyun-tmp/r1/exp/Qwen_Qwen2.5-3B-Instruct/gsmplus600_course_1/ckpt/checkpoint-200_merged",
+            "--chat-template",
+            "chat_template.json",
+            "--model-name",
+            "Qwen2.5-3B-Instruct",
+            "--api-keys",
+            "sk-jiangyj",
+            "--tp",
+            "1",
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
 
 with gsm8k_test_path.open("r") as f:
     # gsm8k_test_data = [json.loads(line) for line in f][:222]
@@ -111,6 +141,15 @@ def verify_and_calculate_accuracy(result_file: Path):
     print(f"准确率: {accuracy:.2%}")
 
     return accuracy
+
+
+# 在后台线程中启动 lmdeploy 服务器
+server_thread = threading.Thread(target=run_lmdeploy_server, daemon=True)
+server_thread.start()
+
+# 等待一段时间，确保服务器有足够时间启动
+print("正在启动 lmdeploy 服务器，请稍候...")
+time.sleep(0.5)  # 等待 5 秒钟让服务器启动
 
 
 # 批量获取 LLM 响应并写入文件
