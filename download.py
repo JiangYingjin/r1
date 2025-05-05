@@ -15,6 +15,7 @@ def download_model(model_name):
 
 if __name__ == "__main__":
     models_to_download = [
+        'unsloth/gemma-3-4b-it-bnb-4bit',
         "unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit",
     ]
     for model_name in models_to_download:
