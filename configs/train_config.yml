@@ -16,7 +16,8 @@ training:
   grpo_num_generations: 6  # 若 OOM，可降低此值
   total_steps: 300
   save_steps: 10
-  learning_rate: 5e-6
+  learning_rate: 1e-5
+  # learning_rate: 5e-6
 
 # 随机种子
 random_state: 9996
