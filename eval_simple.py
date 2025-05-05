@@ -11,12 +11,31 @@ from tqdm import tqdm
 
 model_name = "Qwen/Qwen2.5-3B-Instruct"
 
-exp_name = "gsmplus600_course_1"
-step = 200
+# exp_name = "gsmplus600_course_1"
+exp_name = "course_2"
+step = 180
 
-ckpt_merged_dir = Path(
-    f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}_merged"
+model_ckpt_dir = lambda model_name: Path(
+    f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
 )
+
+model_exp_ckpt_dir = lambda model_name, exp_name, step: Path(
+    f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/eval"
+)
+
+model_exp_step_ckpt_dir = lambda model_name, exp_name, step: Path(
+    f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/eval/checkpoint-{step}"
+)
+
+model_exp_step_ckpt_baidu_dir = lambda model_name, exp_name, step: Path(
+    f"/share/proj/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}"
+)
+
+
+model_exp_step_ckpt_merged_dir = lambda model_name, exp_name, step: Path(
+    f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/eval/checkpoint-{step}_merged"
+)
+
 
 gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
 
@@ -29,11 +48,10 @@ llm = LLM(model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
 def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
     print(f"准备下载模型 ...")
     subprocess.run(
-        f"curl sh.jyj.cx/baidu | bash -s - d /share/proj/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step} /root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt"
+        f"curl sh.jyj.cx/baidu | bash -s - d {str(model_exp_step_ckpt_baidu_dir(model_name, exp_name, step))} {str(model_exp_ckpt_dir(model_name, exp_name, step))}",
+        shell=True,
     )
     print(f"模型下载完毕，准备加载模型并合并 LoRA ...")
-
-    merged_dir = f"/share/proj/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}_merged"
 
     from unsloth import FastLanguageModel
 
@@ -41,11 +59,15 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
 
     try:
         model, tokenizer = FastLanguageModel.from_pretrained(
-            f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}"
+            str(model_exp_step_ckpt_dir(model_name, exp_name, step))
         )
         print(f"模型加载完毕，准备合并（使用 merged_16bit 格式） ...")
 
-        model.save_pretrained_merged(merged_dir, tokenizer, save_method="merged_16bit")
+        model.save_pretrained_merged(
+            str(model_exp_step_ckpt_dir(model_name, exp_name, step)),
+            tokenizer,
+            save_method="merged_16bit",
+        )
         print(f"模型合并完毕")
 
     except Exception as e:
@@ -60,9 +82,9 @@ def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = Non
             "serve",
             "api_server",
             (
-                f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}_merged"
+                model_exp_step_ckpt_merged_dir(model_name, exp_name, step)
                 if exp_name
-                else f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
+                else model_ckpt_dir(model_name)
             ),
             "--chat-template",
             "chat_template.json",
@@ -146,8 +168,10 @@ def verify_and_calculate_accuracy(result_file: Path):
 
 if __name__ == "__main__":
     # 检查合并后的ckpt目录是否存在，不存在则先下载并合并
-    if not ckpt_merged_dir.exists():
+    if not model_exp_step_ckpt_merged_dir(model_name, exp_name, step).exists():
         download_ckpt_and_merge(model_name, exp_name, step)
+
+    exit()
 
     # 启动lmdeploy服务器，传递必要参数
     threading.Thread(
