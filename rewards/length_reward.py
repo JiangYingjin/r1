@@ -7,7 +7,7 @@ from .reward_utils import completions_to_lst, extract_tag_content
 # --- Constants ---
 # Sigmoid function parameters for length reward aiming for Max 2.0
 # Requirements: ~1.75 score at 1000 tokens, ~2.0 score at 1500 tokens.
-MAX_REWARD = 2.0  # The maximum possible reward score.
+MAX_REWARD = 2.4  # The maximum possible reward score.
 TARGET_CENTER_LENGTH = (
     550  # The token length where the reward reaches half of MAX_REWARD (1.0).
 )

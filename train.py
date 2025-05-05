@@ -83,7 +83,8 @@ def main():
         train_dataset=dataset,
         args=GRPOConfig(
             use_vllm=True,  # use vLLM for fast inference!
-            learning_rate=5e-6,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
+            learning_rate=5e-5,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
+            # learning_rate=5e-6,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
             adam_beta1=0.9,
             adam_beta2=0.99,
             weight_decay=0.1,

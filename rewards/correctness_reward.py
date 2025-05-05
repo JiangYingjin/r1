@@ -3,11 +3,17 @@ from .reward_utils import extract_tag_content, completions_to_lst
 from typing import List
 import time
 
+# # --- Constants ---
+# REWARD_CORRECT_IN_ANSWER = 2.5  # <answer> 标签正确奖励
+# REWARD_CORRECT_IN_THINK_ONLY = 2.0  # 只在 <think> 标签正确奖励
+# PENALTY_INCORRECT_ANSWER = -0.5  # 答案错误惩罚
+# PENALTY_VERIFICATION_ERROR = -0.1  # 验证异常惩罚
+
 # --- Constants ---
-REWARD_CORRECT_IN_ANSWER = 2.5  # <answer> 标签正确奖励
-REWARD_CORRECT_IN_THINK_ONLY = 2.0  # 只在 <think> 标签正确奖励
-PENALTY_INCORRECT_ANSWER = -0.5  # 答案错误惩罚
-PENALTY_VERIFICATION_ERROR = -0.1  # 验证异常惩罚
+REWARD_CORRECT_IN_ANSWER = 1.0  # <answer> 标签正确奖励
+REWARD_CORRECT_IN_THINK_ONLY = 1.0  # 只在 <think> 标签正确奖励
+PENALTY_INCORRECT_ANSWER = 0  # 答案错误惩罚
+PENALTY_VERIFICATION_ERROR = 0  # 验证异常惩罚
 
 
 def correctness_reward(
