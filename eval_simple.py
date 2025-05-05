@@ -64,7 +64,7 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
         print(f"模型加载完毕，准备合并（使用 merged_16bit 格式） ...")
 
         model.save_pretrained_merged(
-            str(model_exp_step_ckpt_dir(model_name, exp_name, step)),
+            str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step)),
             tokenizer,
             save_method="merged_16bit",
         )
@@ -102,6 +102,7 @@ def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = Non
 
 def load_gsm8k_test_data():
     """加载并处理GSM8K测试数据集"""
+
     with gsm8k_test_path.open("r") as f:
         gsm8k_test_data = [json.loads(line) for line in f]
     return [
