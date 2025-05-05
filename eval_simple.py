@@ -13,7 +13,7 @@ model_name = "Qwen/Qwen2.5-3B-Instruct"
 
 # exp_name = "gsmplus600_course_1"
 exp_name = "course_2"
-step = 180
+step = 190
 
 model_ckpt_dir = lambda model_name: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
