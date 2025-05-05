@@ -15,4 +15,5 @@ eval
 simple_GRPO
 data/raw
 data/processed
+tmp
 .aider*

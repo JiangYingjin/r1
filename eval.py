@@ -12,8 +12,9 @@ from tqdm import tqdm
 model_name = "Qwen/Qwen2.5-3B-Instruct"
 
 # exp_name = "gsmplus600_course_1"
-exp_name = "course_2"
-step = 190
+# exp_name = "course_2"
+exp_name = "better_reward_3"
+step = 250
 
 model_ckpt_dir = lambda model_name: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
@@ -30,7 +31,6 @@ model_exp_step_ckpt_dir = lambda model_name, exp_name, step: Path(
 model_exp_step_ckpt_baidu_dir = lambda model_name, exp_name, step: Path(
     f"/share/proj/r1/exp/{model_name.replace('/','_')}/{exp_name}/ckpt/checkpoint-{step}"
 )
-
 
 model_exp_step_ckpt_merged_dir = lambda model_name, exp_name, step: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/{exp_name}/eval/checkpoint-{step}_merged"
@@ -204,3 +204,6 @@ if __name__ == "__main__":
 
     # 验证和统计
     accuracy = verify_and_calculate_accuracy(out_file)
+
+    # Kill lmdeploy process after evaluation
+    subprocess.run("pkill -f lmdeploy", shell=True)
