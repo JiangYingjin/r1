@@ -6,6 +6,44 @@ from .reward_utils import completions_to_lst, extract_tag_content
 
 # --- Constants ---
 
+
+'''
+修改提示词去激发
+
+(不要分边界)
+validate
+confirm
+verification
+verifies
+step-by-step
+Hence
+Given
+verified
+recalculate
+let's
+Given
+find out
+states
+which
+provided
+considering
+assume
+assuming
+assumption
+combining
+conduct
+perform
+determine
+Breaking down
+solve
+confirmed
+recheck
+conclude
+calculation
+calcula
+simplify
+'''
+
 # 1. Categorized Keywords and Tier Scores
 KEYWORD_CATEGORIES: Dict[str, str] = {
     # Procedural (Low-Mid Score)

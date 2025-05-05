@@ -13,6 +13,22 @@ model = "Qwen2.5-3B-Instruct"
 gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
 out_dir = Path("eval")
 
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+out_file = out_dir / f"{timestamp}.jsonl"
+
+
+llm = LLM(model, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
+
+
+def load_gsm8k_test_data():
+    """加载并处理GSM8K测试数据集"""
+    with gsm8k_test_path.open("r") as f:
+        gsm8k_test_data = [json.loads(line) for line in f]
+    return [
+        {"question": d["question"], "answer": d["answer"].split("####")[-1].strip()}
+        for d in gsm8k_test_data
+    ]
+
 
 def run_lmdeploy_server():
     """在后台运行 lmdeploy 服务器"""
@@ -38,32 +54,6 @@ def run_lmdeploy_server():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-
-
-with gsm8k_test_path.open("r") as f:
-    # gsm8k_test_data = [json.loads(line) for line in f][:222]
-    gsm8k_test_data = [json.loads(line) for line in f]
-
-
-def get_gsm8k_final_answer(answer: str):
-    return answer.split("####")[-1]
-
-
-gsm8k_test_data = [
-    {"question": d["question"], "answer": get_gsm8k_final_answer(d["answer"]).strip()}
-    for d in gsm8k_test_data
-]
-
-
-# 打印读取的数据量
-print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
-# print(gsm8k_test_data[:5])
-
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-out_file = out_dir / f"{timestamp}.jsonl"
-print(f"Predict results will be saved to: {out_file}")
-
-llm = LLM(model, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
 
 
 def get_llm_response(question: str, answer: str):
@@ -143,34 +133,37 @@ def verify_and_calculate_accuracy(result_file: Path):
     return accuracy
 
 
-# 在后台线程中启动 lmdeploy 服务器
-server_thread = threading.Thread(target=run_lmdeploy_server, daemon=True)
-server_thread.start()
+if __name__ == "__main__":
+    # 在后台线程中启动 lmdeploy 服务器
+    server_thread = threading.Thread(target=run_lmdeploy_server, daemon=True)
+    server_thread.start()
+    # 等待一段时间，确保服务器有足够时间启动
+    print("正在启动 lmdeploy 服务器，请稍候...")
 
-# 等待一段时间，确保服务器有足够时间启动
-print("正在启动 lmdeploy 服务器，请稍候...")
-time.sleep(0.5)  # 等待 5 秒钟让服务器启动
+    gsm8k_test_data = load_gsm8k_test_data()
+    print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
+    print(f"Predict results will be saved to: {out_file}")
 
 
-# 批量获取 LLM 响应并写入文件
-try:
-    with ThreadPoolExecutor(max_workers=32) as executor:
-        futures = [
-            executor.submit(get_llm_response, d["question"], d["answer"])
-            for d in gsm8k_test_data
-        ]
-        for future in tqdm(
-            as_completed(futures), total=len(futures), desc="Getting LLM responses"
-        ):
-            try:
-                future.result()
-            except Exception as e:
-                print(f"任务执行出错: {e}")
+    # 批量获取 LLM 响应并写入文件
+    try:
+        with ThreadPoolExecutor(max_workers=32) as executor:
+            futures = [
+                executor.submit(get_llm_response, d["question"], d["answer"])
+                for d in gsm8k_test_data
+            ]
+            for future in tqdm(
+                as_completed(futures), total=len(futures), desc="Getting LLM responses"
+            ):
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"任务执行出错: {e}")
 
-except KeyboardInterrupt:
-    print("用户手动停止")
+    except KeyboardInterrupt:
+        print("用户手动停止")
 
-# 验证和统计
-accuracy = verify_and_calculate_accuracy(out_file)
+    # 验证和统计
+    accuracy = verify_and_calculate_accuracy(out_file)
 
-# accuracy = verify_and_calculate_accuracy(Path("eval/20250503_232504.jsonl"))
+    # accuracy = verify_and_calculate_accuracy(Path("eval/20250503_232504.jsonl"))
