@@ -93,7 +93,7 @@ def main():
         args=GRPOConfig(
             use_vllm=True,  # use vLLM for fast inference!
             # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
-            learning_rate=config["training"]["learning_rate"],
+            learning_rate=float(config["training"]["learning_rate"]),
             adam_beta1=0.9,
             adam_beta2=0.99,
             weight_decay=0.1,
@@ -120,7 +120,7 @@ def main():
             format_reward.format_reward,
             length_reward.length_reward,
             reasoning_reward.reasoning_reward,
-            # reasoning_efficiency_reward.reasoning_efficiency_reward,
+            reasoning_efficiency_reward.reasoning_efficiency_reward,
         ],
     )
     trainer.train()
