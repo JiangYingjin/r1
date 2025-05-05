@@ -171,8 +171,6 @@ if __name__ == "__main__":
     if not model_exp_step_ckpt_merged_dir(model_name, exp_name, step).exists():
         download_ckpt_and_merge(model_name, exp_name, step)
 
-    exit()
-
     # 启动lmdeploy服务器，传递必要参数
     threading.Thread(
         target=deploy_model_lmdeploy, args=(model_name, exp_name, step), daemon=True
