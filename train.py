@@ -3,14 +3,22 @@ import yaml
 import wandb
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
-from rewards import (
+
+# from rewards import (
+#     correctness_reward,
+#     format_reward,
+#     length_reward,
+#     reasoning_reward,
+#     reasoning_efficiency_reward,
+# )
+from rewards.better_reward_3 import (
     correctness_reward,
     format_reward,
     length_reward,
     reasoning_reward,
     reasoning_efficiency_reward,
 )
-from data_preparation import get_gsmplus600_questions
+from data_preparation import get_gsm8k_questions, get_gsmplus600_questions
 
 
 def load_config(config_path="configs/train_config.yml"):
@@ -67,7 +75,8 @@ def main():
         )
         exit()
 
-    dataset = get_gsmplus600_questions()
+    dataset = get_gsm8k_questions()
+    # dataset = get_gsmplus600_questions()
 
     # 初始化 wandb
     wandb.init(
@@ -83,8 +92,8 @@ def main():
         train_dataset=dataset,
         args=GRPOConfig(
             use_vllm=True,  # use vLLM for fast inference!
-            learning_rate=5e-5,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
-            # learning_rate=5e-6,  # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
+            # 通常建议尝试使用 2e-4、1e-4、5e-5、2e-5 等数值, defaults to `1e-6`
+            learning_rate=config["training"]["learning_rate"],
             adam_beta1=0.9,
             adam_beta2=0.99,
             weight_decay=0.1,
