@@ -4,14 +4,10 @@ grpo_trainer_lora_model
 grpo_saved_lora
 outputs
 wandb
-gemma-3
 logs
-llama.cpp
-gguf_model
-hf
-ollama
 ckpt_merged
 eval
+.ipynb_checkpoints
 simple_GRPO
 data/raw
 data/processed
