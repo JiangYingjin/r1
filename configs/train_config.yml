@@ -1,10 +1,10 @@
 # 实验配置
 experiment:
-  model: unsloth/Llama-3.2-3B-Instruct-bnb-4bit
+  model: unsloth/Phi-4-mini-instruct-unsloth-bnb-4bit
   # model: google/gemma-3-4b-it
   # model: Qwen/Qwen2.5-3B-Instruct
   # model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
-  name: better_reward_llama  # 实验名称，可通过命令行参数覆盖
+  name: better_reward_phi4  # 实验名称，可通过命令行参数覆盖
   description: |
 
 # GPU 参数
