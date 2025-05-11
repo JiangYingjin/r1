@@ -35,6 +35,11 @@ def parse_args():
         default=300,
         help="评测步数 (evaluation step)",
     )
+    parser.add_argument(
+        "--no_chat_template",
+        action="store_true",
+        help="不使用 chat_template.json (Do not use chat_template.json)",
+    )
     return parser.parse_args()
 
 
@@ -82,8 +87,6 @@ gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 out_file = Path("eval") / f"{timestamp}.jsonl"
 out_file.parent.mkdir(exist_ok=True)
-
-llm = LLM(model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
 
 
 def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
@@ -136,7 +139,12 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
                 print(f"使用 from_tf=True 参数后仍然合并失败：{e2}")
 
 
-def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = None):
+def deploy_model_lmdeploy(
+    model_name: str,
+    exp_name: str = None,
+    step: int = None,
+    no_chat_template: bool = False,
+):
     """在后台运行 lmdeploy 服务器"""
     import os
 
@@ -177,25 +185,28 @@ def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = Non
             raise FileNotFoundError(f"无法找到或安装lmdeploy: {str(e)}")
 
     print(f"启动lmdeploy服务器，使用模型: {model_name}")
+    cmd = [
+        lmdeploy_cmd,
+        "serve",
+        "api_server",
+        (
+            model_exp_step_ckpt_merged_dir(model_name, exp_name, step)
+            if exp_name
+            else model_ckpt_dir(model_name)
+        ),
+    ]
+    if not no_chat_template:
+        cmd += ["--chat-template", "chat_template.json"]
+    cmd += [
+        "--model-name",
+        model_name,
+        "--api-keys",
+        "sk-jiangyj",
+        "--tp",
+        "1",
+    ]
     subprocess.run(
-        [
-            lmdeploy_cmd,
-            "serve",
-            "api_server",
-            (
-                model_exp_step_ckpt_merged_dir(model_name, exp_name, step)
-                if exp_name
-                else model_ckpt_dir(model_name)
-            ),
-            "--chat-template",
-            "chat_template.json",
-            "--model-name",
-            model_name,
-            "--api-keys",
-            "sk-jiangyj",
-            "--tp",
-            "1",
-        ],
+        cmd,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -234,7 +245,7 @@ def load_gsm8k_test_data():
     ]
 
 
-def get_llm_response(question: str, answer: str):
+def get_llm_response(llm: LLM, question: str, answer: str):
     resp = llm.chat(
         question,
         # context=SYSTEM_PROMPT,
@@ -295,11 +306,13 @@ if __name__ == "__main__":
     model_name = args.model_name
     exp_name = args.exp_name
     step = args.step
+    no_chat_template = args.no_chat_template
 
     print("=" * 100)
     print(f"模型名称: {model_name}")
     print(f"实验名称: {exp_name}")
     print(f"评测步数: {step}")
+    print(f"使用 Chat Template: {not no_chat_template}")
     print("=" * 100)
 
     # 检查合并后的ckpt目录是否存在，不存在则先下载并合并
@@ -308,7 +321,9 @@ if __name__ == "__main__":
 
     # 启动lmdeploy服务器，传递必要参数
     threading.Thread(
-        target=deploy_model_lmdeploy, args=(model_name, exp_name, step), daemon=True
+        target=deploy_model_lmdeploy,
+        args=(model_name, exp_name, step, no_chat_template),
+        daemon=True,
     ).start()
     print("正在启动 lmdeploy 服务器 ...")
     time.sleep(5)
@@ -317,11 +332,13 @@ if __name__ == "__main__":
     print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
     print(f"Predict results will be saved to: {out_file}")
 
+    llm = LLM(model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
+
     # 批量获取 LLM 响应并写入文件
     try:
         with ThreadPoolExecutor(max_workers=32) as executor:
             futures = [
-                executor.submit(get_llm_response, d["question"], d["answer"])
+                executor.submit(get_llm_response, llm, d["question"], d["answer"])
                 for d in gsm8k_test_data
             ]
             for future in tqdm(
@@ -329,7 +346,7 @@ if __name__ == "__main__":
             ):
                 try:
                     # 设置超时时间为60秒
-                    future.result(timeout=60)
+                    future.result(timeout=20)
                 except TimeoutError:
                     print("任务超时，已跳过")
                 except Exception as e:
@@ -344,6 +361,7 @@ if __name__ == "__main__":
     print(f"模型名称: {model_name}")
     print(f"实验名称: {exp_name}")
     print(f"评测步数: {step}")
+    print(f"使用 Chat Template: {not no_chat_template}")
     print(f"准确率: {accuracy:.2%}")
     print("=" * 100)
 
