@@ -9,14 +9,17 @@ from system_prompt import SYSTEM_PROMPT
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
+model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
+# model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
 # model_name = "Qwen/Qwen2.5-3B-Instruct"
 
-exp_name = "better_reward_phi3.5"
+exp_name = "better_reward_qwen2.5_1.5b"
+# exp_name = "better_reward_phi3.5"
 # exp_name = "gsmplus600_course_1"
 # exp_name = "course_2"
 # exp_name = "better_reward_3"
-exp_name = None
+# exp_name = None
+
 step = 300
 
 model_ckpt_dir = lambda model_name: Path(
@@ -82,9 +85,48 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
 
 def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = None):
     """在后台运行 lmdeploy 服务器"""
+    import os
+
+    lmdeploy_path1 = "/root/miniconda/envs/lmdeploy/bin/lmdeploy"
+    lmdeploy_path2 = "/usr/local/miniforge3/envs/lmdeploy/bin/lmdeploy"
+
+    if os.path.exists(lmdeploy_path1):
+        print(f"找到lmdeploy路径: {lmdeploy_path1}")
+        lmdeploy_cmd = lmdeploy_path1
+    elif os.path.exists(lmdeploy_path2):
+        print(f"找到lmdeploy路径: {lmdeploy_path2}")
+        lmdeploy_cmd = lmdeploy_path2
+    else:
+        print("未找到lmdeploy，尝试创建环境并安装...")
+        try:
+            print(
+                "执行: conda create -n lmdeploy python=3.10 && conda activate lmdeploy && pip install uv && uv pip install lmdeploy"
+            )
+            subprocess.run(
+                "conda create -n lmdeploy python=3.10 -y && conda activate lmdeploy && pip install uv && uv pip install lmdeploy",
+                shell=True,
+                check=True,
+            )
+
+            # 安装后再次检查路径
+            if os.path.exists(lmdeploy_path1):
+                print(f"安装成功，找到lmdeploy路径: {lmdeploy_path1}")
+                lmdeploy_cmd = lmdeploy_path1
+            elif os.path.exists(lmdeploy_path2):
+                print(f"安装成功，找到lmdeploy路径: {lmdeploy_path2}")
+                lmdeploy_cmd = lmdeploy_path2
+            else:
+                raise FileNotFoundError(
+                    "安装后仍无法找到lmdeploy可执行文件，请手动检查安装情况"
+                )
+        except Exception as e:
+            print(f"安装lmdeploy失败: {str(e)}")
+            raise FileNotFoundError(f"无法找到或安装lmdeploy: {str(e)}")
+
+    print(f"启动lmdeploy服务器，使用模型: {model_name}")
     subprocess.run(
         [
-            "/root/miniconda/envs/lmdeploy/bin/lmdeploy",
+            lmdeploy_cmd,
             "serve",
             "api_server",
             (
@@ -101,13 +143,35 @@ def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = Non
             "--tp",
             "1",
         ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        # stdout=subprocess.DEVNULL,
+        # stderr=subprocess.DEVNULL,
     )
 
 
 def load_gsm8k_test_data():
     """加载并处理GSM8K测试数据集"""
+
+    if not gsm8k_test_path.exists():
+        print(f"数据文件不存在，下载中：{gsm8k_test_path}")
+        import requests
+
+        test_data_url = "https://raw.githubusercontent.com/openai/grade-school-math/refs/heads/master/grade_school_math/data/test.jsonl"
+        resp = requests.get(
+            test_data_url,
+            proxies={
+                "http": "http://127.0.0.1:30001",
+                "https": "http://127.0.0.1:30001",
+            },
+        )
+        # 确保响应成功
+        if resp.status_code != 200:
+            print(f"下载失败，状态码：{resp.status_code}")
+            return
+
+        # 确保目标目录存在
+        gsm8k_test_path.parent.mkdir(parents=True, exist_ok=True)
+        gsm8k_test_path.write_text(resp.text)
+        print(f"数据文件下载完毕：{gsm8k_test_path}")
 
     with gsm8k_test_path.open("r") as f:
         gsm8k_test_data = [json.loads(line) for line in f]
@@ -183,7 +247,7 @@ if __name__ == "__main__":
         target=deploy_model_lmdeploy, args=(model_name, exp_name, step), daemon=True
     ).start()
     print("正在启动 lmdeploy 服务器 ...")
-    time.sleep(1)
+    time.sleep(5)
 
     gsm8k_test_data = load_gsm8k_test_data()
     print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
