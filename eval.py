@@ -9,13 +9,14 @@ from system_prompt import SYSTEM_PROMPT
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-model_name = "Qwen/Qwen2.5-3B-Instruct"
+model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
+# model_name = "Qwen/Qwen2.5-3B-Instruct"
 
 # exp_name = "gsmplus600_course_1"
 # exp_name = "course_2"
 # exp_name = "better_reward_3"
 exp_name = None
-step = 200
+step = 300
 
 model_ckpt_dir = lambda model_name: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
