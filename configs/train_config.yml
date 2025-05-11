@@ -1,6 +1,7 @@
 # 实验配置
 experiment:
-  model: unsloth/qwen2.5-1.5b-instruct-bnb-4bit
+  model: unsloth/llama-3.2-3b-instruct-bnb-4bit
+  # model: unsloth/qwen2.5-1.5b-instruct-bnb-4bit
   # model: unsloth/Phi-3.5-mini-instruct-bnb-4bit
   # model: google/gemma-3-4b-it
   # model: Qwen/Qwen2.5-3B-Instruct

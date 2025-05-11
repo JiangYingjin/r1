@@ -6,9 +6,37 @@ import subprocess
 import threading
 import time
 from system_prompt import SYSTEM_PROMPT
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 from tqdm import tqdm
 import psutil
+import argparse
+
+
+# =================== argparse 解析命令行参数 ===================
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="模型评测脚本 (Model evaluation script)"
+    )
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default="unsloth/llama-3.2-3b-instruct-bnb-4bit",
+        help="模型名称 (model name)",
+    )
+    parser.add_argument(
+        "--exp_name",
+        type=str,
+        default=None,
+        help="实验名称 (experiment name)",
+    )
+    parser.add_argument(
+        "--step",
+        type=int,
+        default=300,
+        help="评测步数 (evaluation step)",
+    )
+    return parser.parse_args()
+
 
 model_name = "unsloth/llama-3.2-3b-instruct-bnb-4bit"
 # model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
@@ -17,7 +45,7 @@ model_name = "unsloth/llama-3.2-3b-instruct-bnb-4bit"
 
 exp_name = None
 
-exp_name = "better_reward_llama"
+# exp_name = "better_reward_llama"
 # exp_name = "better_reward_qwen2.5_1.5b"
 # exp_name = "better_reward_phi3.5"
 # exp_name = "gsmplus600_course_1"
@@ -263,6 +291,17 @@ def verify_and_calculate_accuracy(result_file: Path):
 
 
 if __name__ == "__main__":
+    args = parse_args()
+    model_name = args.model_name
+    exp_name = args.exp_name
+    step = args.step
+
+    print("=" * 100)
+    print(f"模型名称: {model_name}")
+    print(f"实验名称: {exp_name}")
+    print(f"评测步数: {step}")
+    print("=" * 100)
+
     # 检查合并后的ckpt目录是否存在，不存在则先下载并合并
     if not model_exp_step_ckpt_merged_dir(model_name, exp_name, step).exists():
         download_ckpt_and_merge(model_name, exp_name, step)
@@ -289,7 +328,10 @@ if __name__ == "__main__":
                 as_completed(futures), total=len(futures), desc="Getting LLM responses"
             ):
                 try:
-                    future.result()
+                    # 设置超时时间为60秒
+                    future.result(timeout=60)
+                except TimeoutError:
+                    print("任务超时，已跳过")
                 except Exception as e:
                     print(f"任务执行出错: {e}")
 
@@ -298,6 +340,12 @@ if __name__ == "__main__":
 
     # 验证和统计
     accuracy = verify_and_calculate_accuracy(out_file)
+    print("=" * 100)
+    print(f"模型名称: {model_name}")
+    print(f"实验名称: {exp_name}")
+    print(f"评测步数: {step}")
+    print(f"准确率: {accuracy:.2%}")
+    print("=" * 100)
 
     # Kill lmdeploy process after evaluation
     # 获取所有包含 'lmdeploy' 的进程 pid，并用 kill -9 杀掉
