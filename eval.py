@@ -82,6 +82,27 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
     except Exception as e:
         print(f"模型合并失败：{e}")
 
+        # 如果是 TensorFlow 权重问题，尝试使用 from_tf=True 参数
+        if "Use `from_tf=True`" in str(e):
+            print(f"检测到 TensorFlow 权重问题，尝试使用 from_tf=True 参数重新加载...")
+            try:
+                model, tokenizer = FastLanguageModel.from_pretrained(
+                    str(model_exp_step_ckpt_dir(model_name, exp_name, step)),
+                    from_tf=True,
+                )
+                print(
+                    f"使用 from_tf=True 参数加载成功，准备合并（使用 merged_16bit 格式） ..."
+                )
+
+                model.save_pretrained_merged(
+                    str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step)),
+                    tokenizer,
+                    save_method="merged_16bit",
+                )
+                print(f"模型合并完毕")
+            except Exception as e2:
+                print(f"使用 from_tf=True 参数后仍然合并失败：{e2}")
+
 
 def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = None):
     """在后台运行 lmdeploy 服务器"""
