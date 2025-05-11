@@ -8,19 +8,21 @@ import time
 from system_prompt import SYSTEM_PROMPT
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
+import psutil
 
 model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
 # model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
 # model_name = "Qwen/Qwen2.5-3B-Instruct"
+
+exp_name = None
 
 exp_name = "better_reward_qwen2.5_1.5b"
 # exp_name = "better_reward_phi3.5"
 # exp_name = "gsmplus600_course_1"
 # exp_name = "course_2"
 # exp_name = "better_reward_3"
-# exp_name = None
 
-step = 300
+step = 200
 
 model_ckpt_dir = lambda model_name: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
@@ -164,8 +166,8 @@ def deploy_model_lmdeploy(model_name: str, exp_name: str = None, step: int = Non
             "--tp",
             "1",
         ],
-        # stdout=subprocess.DEVNULL,
-        # stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
 
@@ -296,4 +298,18 @@ if __name__ == "__main__":
     accuracy = verify_and_calculate_accuracy(out_file)
 
     # Kill lmdeploy process after evaluation
-    subprocess.run("pkill -f lmdeploy", shell=True)
+    # 获取所有包含 'lmdeploy' 的进程 pid，并用 kill -9 杀掉
+    lmdeploy_pids = []
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+        try:
+            cmdline = " ".join(proc.info["cmdline"]) if proc.info["cmdline"] else ""
+            if "lmdeploy" in cmdline:
+                lmdeploy_pids.append(proc.info["pid"])
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+    for pid in lmdeploy_pids:
+        try:
+            subprocess.run(["kill", "-9", str(pid)])
+            print(f"已杀死 lmdeploy 进程 pid: {pid}")
+        except Exception as e:
+            print(f"杀死进程 {pid} 失败: {e}")

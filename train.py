@@ -66,7 +66,7 @@ def main():
     )
 
     # 保存原始模型
-    save_ckpt = False
+    save_ckpt = True
     if save_ckpt:
         model.save_pretrained_merged(
             f"{output_root}/exp/{model_name.replace('/','_')}/ckpt",
