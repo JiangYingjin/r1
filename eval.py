@@ -10,19 +10,21 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 import psutil
 
-model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
+model_name = "unsloth/llama-3.2-3b-instruct-bnb-4bit"
+# model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
 # model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
 # model_name = "Qwen/Qwen2.5-3B-Instruct"
 
 exp_name = None
 
-exp_name = "better_reward_qwen2.5_1.5b"
+exp_name = "better_reward_llama"
+# exp_name = "better_reward_qwen2.5_1.5b"
 # exp_name = "better_reward_phi3.5"
 # exp_name = "gsmplus600_course_1"
 # exp_name = "course_2"
 # exp_name = "better_reward_3"
 
-step = 200
+step = 300
 
 model_ckpt_dir = lambda model_name: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
