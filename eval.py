@@ -12,6 +12,7 @@ from tqdm import tqdm
 model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
 # model_name = "Qwen/Qwen2.5-3B-Instruct"
 
+exp_name = "better_reward_phi3.5"
 # exp_name = "gsmplus600_course_1"
 # exp_name = "course_2"
 # exp_name = "better_reward_3"
