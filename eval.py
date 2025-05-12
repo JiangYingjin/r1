@@ -133,15 +133,13 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
                     str(model_exp_step_ckpt_dir(model_name, exp_name, step)),
                     from_tf=True,
                 )
-                print(
-                    f"使用 from_tf=True 参数加载成功，准备合并（使用 merged_16bit 格式） ..."
-                )
+                print(f"使用 from_tf=True 参数加载成功，准备合并 ...")
 
                 model.save_pretrained_merged(
                     str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step)),
                     tokenizer,
                     save_method=(
-                        "merged_8bit" if "phi" in model_name.lower() else "merged_16bit"
+                        "merged_4bit" if "phi" in model_name.lower() else "merged_16bit"
                     ),
                 )
                 print(f"模型合并完毕")
@@ -240,7 +238,6 @@ def deploy_model_sglang(
     # 假设 sglang 安装在 conda 环境或全局
     sglang_path1 = "/root/miniconda/envs/sglang/bin/python"
     sglang_path2 = "/usr/local/miniforge3/envs/sglang/bin/python"
-    sglang_module = "sglang.launch_server"
 
     if os.path.exists(sglang_path1):
         print(f"找到 sglang 路径: {sglang_path1}")
@@ -285,11 +282,9 @@ def deploy_model_sglang(
     cmd = [
         sglang_cmd,
         "-m",
-        sglang_module,
+        "sglang.launch_server",
         "--model-path",
         model_path,
-        "--quantization",
-        "fp8",
         "--tp",
         "1",
         # 端口和 API KEY 可根据需要添加
