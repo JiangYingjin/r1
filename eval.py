@@ -167,9 +167,10 @@ def deploy_model_lmdeploy(
                 "执行: conda create -n lmdeploy python=3.10 && conda activate lmdeploy && pip install uv && uv pip install lmdeploy"
             )
             subprocess.run(
-                "conda create -n lmdeploy python=3.10 -y && conda activate lmdeploy && pip install uv && uv pip install lmdeploy",
+                "source ~/.zshrc && conda create -n lmdeploy python=3.10 -y && conda activate lmdeploy && pip install uv && uv pip install lmdeploy",
                 shell=True,
                 check=True,
+                executable="/bin/zsh",
             )
 
             # 安装后再次检查路径
