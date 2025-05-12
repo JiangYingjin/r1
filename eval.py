@@ -140,7 +140,9 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
                 model.save_pretrained_merged(
                     str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step)),
                     tokenizer,
-                    save_method="merged_16bit",
+                    save_method=(
+                        "merged_8bit" if "phi" in model_name.lower() else "merged_16bit"
+                    ),
                 )
                 print(f"模型合并完毕")
             except Exception as e2:
