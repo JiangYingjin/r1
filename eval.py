@@ -155,13 +155,13 @@ def deploy_model_lmdeploy(
     lmdeploy_path2 = "/usr/local/miniforge3/envs/lmdeploy/bin/lmdeploy"
 
     if os.path.exists(lmdeploy_path1):
-        print(f"找到lmdeploy路径: {lmdeploy_path1}")
+        print(f"找到 lmdeploy 路径: {lmdeploy_path1}")
         lmdeploy_cmd = lmdeploy_path1
     elif os.path.exists(lmdeploy_path2):
-        print(f"找到lmdeploy路径: {lmdeploy_path2}")
+        print(f"找到 lmdeploy 路径: {lmdeploy_path2}")
         lmdeploy_cmd = lmdeploy_path2
     else:
-        print("未找到lmdeploy，尝试创建环境并安装...")
+        print("未找到 lmdeploy，尝试创建环境并安装...")
         try:
             print(
                 "执行: conda create -n lmdeploy python=3.10 && conda activate lmdeploy && pip install uv && uv pip install lmdeploy"
@@ -174,20 +174,20 @@ def deploy_model_lmdeploy(
 
             # 安装后再次检查路径
             if os.path.exists(lmdeploy_path1):
-                print(f"安装成功，找到lmdeploy路径: {lmdeploy_path1}")
+                print(f"安装成功，找到 lmdeploy 路径: {lmdeploy_path1}")
                 lmdeploy_cmd = lmdeploy_path1
             elif os.path.exists(lmdeploy_path2):
-                print(f"安装成功，找到lmdeploy路径: {lmdeploy_path2}")
+                print(f"安装成功，找到 lmdeploy 路径: {lmdeploy_path2}")
                 lmdeploy_cmd = lmdeploy_path2
             else:
                 raise FileNotFoundError(
-                    "安装后仍无法找到lmdeploy可执行文件，请手动检查安装情况"
+                    "安装后仍无法找到 lmdeploy 可执行文件，请手动检查安装情况"
                 )
         except Exception as e:
-            print(f"安装lmdeploy失败: {str(e)}")
-            raise FileNotFoundError(f"无法找到或安装lmdeploy: {str(e)}")
+            print(f"安装 lmdeploy 失败: {str(e)}")
+            raise FileNotFoundError(f"无法找到或安装 lmdeploy: {str(e)}")
 
-    print(f"启动lmdeploy服务器，使用模型: {model_name}")
+    print(f"启动 lmdeploy 服务器，使用模型: {model_name}")
     cmd = [
         lmdeploy_cmd,
         "serve",
@@ -332,8 +332,8 @@ if __name__ == "__main__":
     time.sleep(5)
 
     gsm8k_test_data = load_gsm8k_test_data()
-    print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
-    print(f"Predict results will be saved to: {out_file}")
+    print(f"从 GSM8K 测试集加载了 {len(gsm8k_test_data)} 个示例")
+    print(f"预测结果将保存到： {out_file}")
 
     llm = LLM(model_name, base_url=llm_api_url, key=llm_api_key, timeout=25)
 
@@ -349,17 +349,9 @@ if __name__ == "__main__":
             print(f"API 服务已就绪，收到响应: {response[:20]}...")
             break
         except Exception as e:
-            if (
-                "Connection Error".lower() in str(e).lower()
-                or "Connection refused".lower() in str(e).lower()
-            ):
-                print(
-                    f"尝试 {attempt+1}/{max_retries}: API 服务尚未就绪，等待 {retry_interval} 秒后重试..."
-                )
-                time.sleep(retry_interval)
-            else:
-                print(f"API 服务可能已就绪，但出现其他错误: {e}")
-                break
+            print(f"API 服务未就绪，错误: {e}")
+            time.sleep(retry_interval)
+
     else:
         print("警告: 达到最大重试次数，API 服务可能仍未就绪，但将继续执行后续操作")
 
