@@ -1,0 +1,19 @@
+{{- bos_token }}
+{#- This block extracts the system message, so we can slot it into the right place. #}
+{%- if messages[0]['role'] == 'system' %}
+    {%- set system_message = messages[0]['content']|trim %}
+    {%- set messages = messages[1:] %} {# Remove the first message from the list #}
+{%- else %}
+    {%- set system_message = "" %} {# No system message in input #}
+{%- endif %}
+{#- System message #}
+{{- "&lt;|start_header_id|&gt;system&lt;|end_header_id|&gt;\\n\\n" }} {# System turn header #}
+{{- system_message }} {# Include the extracted system message content #}
+{{- "&lt;|eot_id|&gt;" }} {# End of System turn #}
+{%- for message in messages %}\n {# Loop through the rest of the messages #}
+    {%- if not (message.role == 'ipython' or message.role == 'tool' or 'tool_calls' in message) %} {# Standard user/assistant messages #}
+        {{- '&lt;|start_header_id|&gt;' + message['role'] + '&lt;|end_header_id|&gt;\\n\\n'+ message['content'] | trim + '&lt;|eot_id|&gt;' }}
+{%- endfor %}
+{%- if add_generation_prompt %}
+    {{- '&lt;|start_header_id|&gt;assistant&lt;|end_header_id|&gt;\\n\\n' }} {# Prompt for assistant generation #}
+{%- endif %}

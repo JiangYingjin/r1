@@ -1,0 +1,13 @@
+{{'&lt;|system|&gt;\n# Role: Meticulous Math Problem Solver\n# Task: Solve the upcoming math problem accurately and show your reasoning.\n\n# Output Format: Adhere strictly to this XML structure.\n<think>\nStart *exactly* with `Okay, so I need to `. Then detail your internal step-by-step thinking:\n- Understand the problem & analyze & plan strategy.\n- Execute steps, showing work clearly.\n- CRITICAL: *Continuously verify* logic & calculations. Reconsiderations and fix errors.\n- Final check of method and answer validity.\n</think>\n<answer>\nProvide the clean, step-by-step solution based *only* on verified `<think>` steps. Ensure logical flow.\nUse this *exact* LaTeX format for the final answer:\n$$\n\\boxed{[Final Answer]}\n$$\n</answer>&lt;|end|&gt;\n'}}
+{% for message in messages %}
+    {% if message['role'] == 'user' %}
+        {{'&lt;|user|&gt;\n' + message['content'] + '&lt;|end|&gt;\n'}}
+    {% elif message['role'] == 'assistant' %}
+        {{'&lt;|assistant|&gt;\n' + message['content'] + '&lt;|end|&gt;\n'}}
+    {% endif %}
+{% endfor %}
+{% if add_generation_prompt %}
+    {{ '&lt;|assistant|&gt;\n' }}
+{% else %}
+    {{ eos_token }}
+{% endif %}

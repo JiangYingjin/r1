@@ -132,6 +132,13 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
                 print(f"使用 from_tf=True 参数后仍然合并失败：{e2}")
 
 
+def get_chat_template(model_name: str):
+    if "phi" in model_name.lower():
+        return "chat_templates/phi.jinja"
+    else:
+        return "chat_template.json"
+
+
 def deploy_model_lmdeploy(
     model_name: str,
     exp_name: str = None,
@@ -289,6 +296,84 @@ def deploy_model_sglang(
         )
 
 
+def deploy_model_vllm(
+    model_name: str,
+    exp_name: str = None,
+    step: int = None,
+    no_chat_template: bool = False,
+    debug: bool = False,
+):
+    """在后台运行 vllm 服务器"""
+    import os
+
+    vllm_path1 = "/usr/local/miniforge3/envs/vllm/bin/vllm"
+    vllm_path2 = "/root/miniconda/envs/vllm/bin/vllm"
+
+    if os.path.exists(vllm_path1):
+        print(f"找到 vllm 路径: {vllm_path1}")
+        vllm_cmd = vllm_path1
+    elif os.path.exists(vllm_path2):
+        print(f"找到 vllm 路径: {vllm_path2}")
+        vllm_cmd = vllm_path2
+    else:
+        print("未找到 vllm，尝试创建环境并安装...")
+        try:
+            print(
+                "执行: conda create -n vllm python=3.12 && conda activate vllm && pip install uv && uv pip install vllm"
+            )
+            subprocess.run(
+                "source ~/.zshrc && conda create -n vllm python=3.12 -y && conda activate vllm && pip install uv && uv pip install vllm",
+                shell=True,
+                check=True,
+                executable="/bin/zsh",
+            )
+            if os.path.exists(vllm_path1):
+                print(f"安装成功，找到 vllm 路径: {vllm_path1}")
+                vllm_cmd = vllm_path1
+            elif os.path.exists(vllm_path2):
+                print(f"安装成功，找到 vllm 路径: {vllm_path2}")
+                vllm_cmd = vllm_path2
+            else:
+                raise FileNotFoundError(
+                    "安装后仍无法找到 vllm 可执行文件，请手动检查安装情况"
+                )
+        except Exception as e:
+            print(f"安装 vllm 失败: {str(e)}")
+            raise FileNotFoundError(f"无法找到或安装 vllm: {str(e)}")
+
+    print(f"启动 vllm 服务器，使用模型: {model_name}")
+    model_path = (
+        str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step))
+        if exp_name
+        else str(model_ckpt_dir(model_name))
+    )
+    cmd = [
+        vllm_cmd,
+        "serve",
+        model_path,
+        "--served-model-name",
+        model_name,
+        "--port",
+        "23333",
+        "--api-key",
+        "sk-jiangyj",
+        "--tensor-parallel-size",
+        "1",
+        "--max-model-len",
+        "4096",
+    ]
+    if not no_chat_template:
+        cmd += ["--chat-template", "chat_template.json"]
+    if debug:
+        subprocess.run(cmd)
+    else:
+        subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+
 def load_gsm8k_test_data():
     """加载并处理GSM8K测试数据集"""
 
@@ -397,14 +482,14 @@ if __name__ == "__main__":
     if not model_exp_step_ckpt_merged_dir(model_name, exp_name, step).exists():
         download_ckpt_and_merge(model_name, exp_name, step)
 
-    # 判断是否用 sglang
+    # 判断是否用 vllm
     if "phi" in model_name.lower():
         threading.Thread(
-            target=deploy_model_sglang,
+            target=deploy_model_vllm,
             args=(model_name, exp_name, step, no_chat_template, debug),
             daemon=True,
         ).start()
-        print("正在启动 sglang 服务器 ...")
+        print("正在启动 vllm 服务器 ...")
     else:
         threading.Thread(
             target=deploy_model_lmdeploy,
