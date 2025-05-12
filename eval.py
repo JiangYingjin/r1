@@ -200,7 +200,7 @@ def deploy_model_lmdeploy(
         ),
     ]
     if not no_chat_template:
-        cmd += ["--chat-template", get_chat_template(model_name)]
+        cmd += ["--chat-template", 'chat_template.json']
     cmd += [
         "--model-name",
         model_name,

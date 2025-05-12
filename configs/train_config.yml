@@ -1,11 +1,9 @@
 # 实验配置
 experiment:
-  # model: unsloth/llama-3.2-3b-instruct-bnb-4bit
+  model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
   # model: unsloth/qwen2.5-1.5b-instruct-bnb-4bit
-  model: unsloth/Phi-3.5-mini-instruct-bnb-4bit
-  # model: google/gemma-3-4b-it
-  # model: Qwen/Qwen2.5-3B-Instruct
-  # model: unsloth/Qwen2.5-3B-Instruct-unsloth-bnb-4bit
+  # model: unsloth/llama-3.2-3b-instruct-bnb-4bit
+  # model: unsloth/Phi-3.5-mini-instruct-bnb-4bit
   # name: better_reward_phi3.5  # 实验名称，可通过命令行参数覆盖
   name: save_ckpt  # 实验名称，可通过命令行参数覆盖
   description: |
