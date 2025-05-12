@@ -509,7 +509,7 @@ if __name__ == "__main__":
 
     # 循环检测 llm_api_url 是否可用，直到获得非 connection error 的响应
     print("正在检测 API 服务是否就绪...")
-    max_retries = 30
+    max_retries = 100
     retry_interval = 2  # 秒
 
     for attempt in range(max_retries):
