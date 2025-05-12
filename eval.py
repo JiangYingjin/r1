@@ -40,6 +40,11 @@ def parse_args():
         action="store_true",
         help="不使用 chat_template.json (Do not use chat_template.json)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="调试模式，输出详细日志 (Debug mode, print detailed logs)",
+    )
     return parser.parse_args()
 
 
@@ -135,7 +140,9 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
                 model.save_pretrained_merged(
                     str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step)),
                     tokenizer,
-                    save_method="merged_16bit",
+                    save_method=(
+                        "merged_8bit" if "phi" in model_name.lower() else "merged_16bit"
+                    ),
                 )
                 print(f"模型合并完毕")
             except Exception as e2:
@@ -147,6 +154,7 @@ def deploy_model_lmdeploy(
     exp_name: str = None,
     step: int = None,
     no_chat_template: bool = False,
+    debug: bool = False,
 ):
     """在后台运行 lmdeploy 服务器"""
     import os
@@ -209,11 +217,97 @@ def deploy_model_lmdeploy(
         "--tp",
         "1",
     ]
-    subprocess.run(
-        cmd,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+    if debug:
+        subprocess.run(cmd)
+    else:
+        subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+
+def deploy_model_sglang(
+    model_name: str,
+    exp_name: str = None,
+    step: int = None,
+    no_chat_template: bool = False,
+    debug: bool = False,
+):
+    """在后台运行 sglang 服务器"""
+    import os
+
+    # 假设 sglang 安装在 conda 环境或全局
+    sglang_path1 = "/root/miniconda/envs/sglang/bin/python"
+    sglang_path2 = "/usr/local/miniforge3/envs/sglang/bin/python"
+    sglang_module = "sglang.launch_server"
+
+    if os.path.exists(sglang_path1):
+        print(f"找到 sglang 路径: {sglang_path1}")
+        sglang_cmd = sglang_path1
+    elif os.path.exists(sglang_path2):
+        print(f"找到 sglang 路径: {sglang_path2}")
+        sglang_cmd = sglang_path2
+    else:
+        print("未找到 sglang，尝试创建环境并安装...")
+        try:
+            print(
+                "执行: conda create -n sglang python=3.12 && conda activate sglang && pip install uv && uv pip install 'sglang[all]>=0.4.6.post3'"
+            )
+            subprocess.run(
+                'source ~/.zshrc && conda create -n sglang python=3.12 -y && conda activate sglang && pip install uv && uv pip install "sglang[all]>=0.4.6.post3"',
+                shell=True,
+                check=True,
+                executable="/bin/zsh",
+            )
+            if os.path.exists(sglang_path1):
+                print(f"安装成功，找到 sglang 路径: {sglang_path1}")
+                sglang_cmd = sglang_path1
+            elif os.path.exists(sglang_path2):
+                print(f"安装成功，找到 sglang 路径: {sglang_path2}")
+                sglang_cmd = sglang_path2
+            else:
+                raise FileNotFoundError(
+                    "安装后仍无法找到 sglang 可执行文件，请手动检查安装情况"
+                )
+        except Exception as e:
+            print(f"安装 sglang 失败: {str(e)}")
+            raise FileNotFoundError(f"无法找到或安装 sglang: {str(e)}")
+
+    print(f"启动 sglang 服务器，使用模型: {model_name}")
+    # sglang 启动命令
+    # python -m sglang.launch_server --model-path <模型路径> [--tp 1] [--其他参数]
+    model_path = (
+        str(model_exp_step_ckpt_merged_dir(model_name, exp_name, step))
+        if exp_name
+        else str(model_ckpt_dir(model_name))
     )
+    cmd = [
+        sglang_cmd,
+        "-m",
+        sglang_module,
+        "--model-path",
+        model_path,
+        "--quantization",
+        "fp8",
+        "--tp",
+        "1",
+        # 端口和 API KEY 可根据需要添加
+        "--port",
+        "23333",
+        "--api-key",
+        "sk-jiangyj",
+    ]
+    if not no_chat_template:
+        cmd += ["--chat-template", "chat_template_sglang.json"]
+    if debug:
+        subprocess.run(cmd)
+    else:
+        subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
 
 def load_gsm8k_test_data():
@@ -311,6 +405,7 @@ if __name__ == "__main__":
     exp_name = args.exp_name
     step = args.step
     no_chat_template = args.no_chat_template
+    debug = args.debug
 
     print("=" * 100)
     print(f"模型名称: {model_name}")
@@ -323,13 +418,21 @@ if __name__ == "__main__":
     if not model_exp_step_ckpt_merged_dir(model_name, exp_name, step).exists():
         download_ckpt_and_merge(model_name, exp_name, step)
 
-    # 启动lmdeploy服务器，传递必要参数
-    threading.Thread(
-        target=deploy_model_lmdeploy,
-        args=(model_name, exp_name, step, no_chat_template),
-        daemon=True,
-    ).start()
-    print("正在启动 lmdeploy 服务器 ...")
+    # 判断是否用 sglang
+    if "phi" in model_name.lower():
+        threading.Thread(
+            target=deploy_model_sglang,
+            args=(model_name, exp_name, step, no_chat_template, debug),
+            daemon=True,
+        ).start()
+        print("正在启动 sglang 服务器 ...")
+    else:
+        threading.Thread(
+            target=deploy_model_lmdeploy,
+            args=(model_name, exp_name, step, no_chat_template, debug),
+            daemon=True,
+        ).start()
+        print("正在启动 lmdeploy 服务器 ...")
     time.sleep(5)
 
     gsm8k_test_data = load_gsm8k_test_data()
