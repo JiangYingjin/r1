@@ -40,6 +40,11 @@ def parse_args():
         action="store_true",
         help="不使用 chat_template.json (Do not use chat_template.json)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="调试模式，输出详细日志 (Debug mode, print detailed logs)",
+    )
     return parser.parse_args()
 
 
@@ -147,6 +152,7 @@ def deploy_model_lmdeploy(
     exp_name: str = None,
     step: int = None,
     no_chat_template: bool = False,
+    debug: bool = False,
 ):
     """在后台运行 lmdeploy 服务器"""
     import os
@@ -209,11 +215,14 @@ def deploy_model_lmdeploy(
         "--tp",
         "1",
     ]
-    subprocess.run(
-        cmd,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+    if debug:
+        subprocess.run(cmd)
+    else:
+        subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
 
 def load_gsm8k_test_data():
@@ -311,6 +320,7 @@ if __name__ == "__main__":
     exp_name = args.exp_name
     step = args.step
     no_chat_template = args.no_chat_template
+    debug = args.debug
 
     print("=" * 100)
     print(f"模型名称: {model_name}")
@@ -326,7 +336,7 @@ if __name__ == "__main__":
     # 启动lmdeploy服务器，传递必要参数
     threading.Thread(
         target=deploy_model_lmdeploy,
-        args=(model_name, exp_name, step, no_chat_template),
+        args=(model_name, exp_name, step, no_chat_template, debug),
         daemon=True,
     ).start()
     print("正在启动 lmdeploy 服务器 ...")
