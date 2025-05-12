@@ -6,7 +6,7 @@ outputs
 wandb
 logs
 ckpt_merged
-eval
+/eval
 .ipynb_checkpoints
 simple_GRPO
 data/raw
