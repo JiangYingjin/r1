@@ -332,7 +332,9 @@ if __name__ == "__main__":
     print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
     print(f"Predict results will be saved to: {out_file}")
 
-    llm = LLM(model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj")
+    llm = LLM(
+        model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj", timeout=20
+    )
 
     # 批量获取 LLM 响应并写入文件
     try:
@@ -346,7 +348,7 @@ if __name__ == "__main__":
             ):
                 try:
                     # 设置超时时间为60秒
-                    future.result(timeout=20)
+                    result = future.result()
                 except TimeoutError:
                     print("任务超时，已跳过")
                 except Exception as e:

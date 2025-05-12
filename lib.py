@@ -158,6 +158,16 @@ class LLM:
         first_token = True
         for chunk in stream:
             if chunk.choices:
+                # 检查是否超时
+                if time.time() - t > timeout:
+                    # 关闭流式响应
+                    try:
+                        stream.close()
+                    except:
+                        pass
+                    print("\n\n[LLM] 响应返回超时，已关闭请求！\n\n")
+                    raise TimeoutError
+
                 if (delta := chunk.choices[0].delta.content) is not None:
                     output[0] += delta
                     if first_token:
