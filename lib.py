@@ -165,7 +165,7 @@ class LLM:
                         stream.close()
                     except:
                         pass
-                    print("\n\n[LLM] 响应返回超时，已关闭请求！\n\n")
+                    print("\n[LLM] 响应返回超时，已关闭请求！")
                     raise TimeoutError
 
                 if (delta := chunk.choices[0].delta.content) is not None:

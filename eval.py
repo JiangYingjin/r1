@@ -43,21 +43,21 @@ def parse_args():
     return parser.parse_args()
 
 
-model_name = "unsloth/llama-3.2-3b-instruct-bnb-4bit"
-# model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
-# model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
-# model_name = "Qwen/Qwen2.5-3B-Instruct"
+# model_name = "unsloth/llama-3.2-3b-instruct-bnb-4bit"
+# # model_name = "unsloth/qwen2.5-1.5b-instruct-bnb-4bit"
+# # model_name = "unsloth/Phi-3.5-mini-instruct-bnb-4bit"
+# # model_name = "Qwen/Qwen2.5-3B-Instruct"
 
-exp_name = None
+# exp_name = None
 
-# exp_name = "better_reward_llama"
-# exp_name = "better_reward_qwen2.5_1.5b"
-# exp_name = "better_reward_phi3.5"
-# exp_name = "gsmplus600_course_1"
-# exp_name = "course_2"
-# exp_name = "better_reward_3"
+# # exp_name = "better_reward_llama"
+# # exp_name = "better_reward_qwen2.5_1.5b"
+# # exp_name = "better_reward_phi3.5"
+# # exp_name = "gsmplus600_course_1"
+# # exp_name = "course_2"
+# # exp_name = "better_reward_3"
 
-step = 300
+# step = 300
 
 model_ckpt_dir = lambda model_name: Path(
     f"/root/lanyun-tmp/r1/exp/{model_name.replace('/','_')}/ckpt"
@@ -83,6 +83,9 @@ model_exp_step_ckpt_merged_dir = lambda model_name, exp_name, step: Path(
 
 
 gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
+
+llm_api_url = "http://127.0.0.1:23333/v1"
+llm_api_key = "sk-jiangyj"
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 out_file = Path("eval") / f"{timestamp}.jsonl"
@@ -332,9 +335,33 @@ if __name__ == "__main__":
     print(f"Loaded {len(gsm8k_test_data)} examples from GSM8K test set")
     print(f"Predict results will be saved to: {out_file}")
 
-    llm = LLM(
-        model_name, base_url="http://127.0.0.1:23333/v1", key="sk-jiangyj", timeout=20
-    )
+    llm = LLM(model_name, base_url=llm_api_url, key=llm_api_key, timeout=25)
+
+    # 循环检测 llm_api_url 是否可用，直到获得非 connection error 的响应
+    print("正在检测 API 服务是否就绪...")
+    max_retries = 30
+    retry_interval = 2  # 秒
+
+    for attempt in range(max_retries):
+        try:
+            # 尝试发送一个简单的请求来检测服务是否可用
+            response = llm.chat("你好", silent=True)
+            print(f"API 服务已就绪，收到响应: {response[:20]}...")
+            break
+        except Exception as e:
+            if (
+                "Connection Error".lower() in str(e).lower()
+                or "Connection refused".lower() in str(e).lower()
+            ):
+                print(
+                    f"尝试 {attempt+1}/{max_retries}: API 服务尚未就绪，等待 {retry_interval} 秒后重试..."
+                )
+                time.sleep(retry_interval)
+            else:
+                print(f"API 服务可能已就绪，但出现其他错误: {e}")
+                break
+    else:
+        print("警告: 达到最大重试次数，API 服务可能仍未就绪，但将继续执行后续操作")
 
     # 批量获取 LLM 响应并写入文件
     try:
