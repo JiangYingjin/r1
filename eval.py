@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 from tqdm import tqdm
 import psutil
 import argparse
+import socket
 
 
 # =================== argparse 解析命令行参数 ===================
@@ -71,9 +72,16 @@ model_exp_step_ckpt_merged_dir = lambda model_name, exp_name, step: Path(
 )
 
 
-gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
+def get_available_port():
+    """自动分配一个可用端口（由操作系统分配）"""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))  # 端口0让系统自动分配
+        return s.getsockname()[1]
 
-llm_api_url = "http://127.0.0.1:23333/v1"
+
+gsm8k_test_path = Path("data/raw/gsm8k_test.jsonl")
+port = get_available_port()
+llm_api_url = f"http://127.0.0.1:{port}/v1"
 llm_api_key = "sk-jiangyj"
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -200,12 +208,14 @@ def deploy_model_lmdeploy(
         ),
     ]
     if not no_chat_template:
-        cmd += ["--chat-template", 'chat_template.json']
+        cmd += ["--chat-template", "chat_template.json"]
     cmd += [
         "--model-name",
         model_name,
         "--api-keys",
         "sk-jiangyj",
+        "--server-port",
+        str(port),
         "--tp",
         "1",
     ]
@@ -282,7 +292,7 @@ def deploy_model_sglang(
         "--tp",
         "1",
         "--port",
-        "23333",
+        str(port),
         "--api-key",
         "sk-jiangyj",
     ]
@@ -356,7 +366,7 @@ def deploy_model_vllm(
         "--served-model-name",
         model_name,
         "--port",
-        "23333",
+        str(port),
         "--api-key",
         "sk-jiangyj",
         "--tensor-parallel-size",
