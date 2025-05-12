@@ -1,0 +1,27 @@
+{# Initial System Message Handling (from input or default).
+   This block corresponds to the original template's 'else' branch
+   of the initial 'if tools' check. #}
+{%- if messages[0]['role'] == 'system' %}
+    {{- '&lt;|im_start|&gt;system\\n' + messages[0]['content'] + '&lt;|im_end|&gt;\\n' }}
+{%- else %}
+    {{- '&lt;|im_start|&gt;system\\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.&lt;|im_end|&gt;\\n' }}
+{%- endif %}
+
+{# Loop through ALL messages, formatting standard turns * after * the initial system.
+   Tool-related message types are ignored by the condition. #}
+{%- for message in messages %}\n
+    {# Format user, assistant, and subsequent system messages.
+       The condition is simplified as tool-specific branches are removed.
+       (message.role == "user") - handles all user messages.
+       (message.role == "system" and not loop.first) - handles system messages AFTER the first one.
+       (message.role == "assistant") - handles ALL assistant messages (text only or originally with tool_calls, as tool handling is removed). #}
+    {%- if (message.role == \"user\") or (message.role == \"system\" and not loop.first) or (message.role == \"assistant") %}
+        {{- '&lt;|im_start|&gt;' + message.role + '\\n' + message.content | trim + '&lt;|im_end|&gt;' + '\\n' }}
+    {# Removed elifs for assistant with tool_calls and tool role #}
+    {%- endif %} {# This endif closes the simplified if block #}
+{%- endfor %}
+
+{# Add generation prompt #}
+{%- if add_generation_prompt %}
+    {{- '&lt;|im_start|&gt;assistant\\n' }} {# Prompt for assistant generation #}
+{%- endif %}

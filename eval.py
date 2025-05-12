@@ -133,10 +133,12 @@ def download_ckpt_and_merge(model_name: str, exp_name: str, step: int):
 
 
 def get_chat_template(model_name: str):
-    if "phi" in model_name.lower():
+    if "llama" in model_name.lower():
+        return "chat_templates/llama.jinja"
+    elif "phi" in model_name.lower():
         return "chat_templates/phi.jinja"
     else:
-        return "chat_template.json"
+        return "chat_templates/qwen.jinja"
 
 
 def deploy_model_lmdeploy(
@@ -198,7 +200,7 @@ def deploy_model_lmdeploy(
         ),
     ]
     if not no_chat_template:
-        cmd += ["--chat-template", "chat_template.json"]
+        cmd += ["--chat-template", get_chat_template(model_name)]
     cmd += [
         "--model-name",
         model_name,
@@ -285,7 +287,7 @@ def deploy_model_sglang(
         "sk-jiangyj",
     ]
     if not no_chat_template:
-        cmd += ["--chat-template", "chat_template_sglang.json"]
+        cmd += ["--chat-template", get_chat_template(model_name)]
     if debug:
         subprocess.run(cmd)
     else:
@@ -363,7 +365,7 @@ def deploy_model_vllm(
         "4096",
     ]
     if not no_chat_template:
-        cmd += ["--chat-template", "chat_template.json"]
+        cmd += ["--chat-template", get_chat_template(model_name)]
     if debug:
         subprocess.run(cmd)
     else:
@@ -554,35 +556,18 @@ if __name__ == "__main__":
     print(f"准确率: {accuracy:.2%}")
     print("=" * 100)
 
-    # Kill lmdeploy process after evaluation
-    # 获取所有包含 'lmdeploy' 的进程 pid，并用 kill -9 杀掉
-    lmdeploy_pids = []
+    # 获取所有包含 'lmdeploy' 或 'vllm' 的进程 pid，并用 kill -9 杀掉
     for proc in psutil.process_iter(["pid", "name", "cmdline"]):
         try:
             cmdline = " ".join(proc.info["cmdline"]) if proc.info["cmdline"] else ""
-            if "lmdeploy" in cmdline:
-                lmdeploy_pids.append(proc.info["pid"])
+            if "lmdeploy" in cmdline or "vllm" in cmdline:
+                pid = proc.info["pid"]
+                try:
+                    subprocess.run(["kill", "-9", str(pid)])
+                    print(
+                        f"已杀死进程 pid: {pid}，命令行包含: {'lmdeploy' if 'lmdeploy' in cmdline else 'vllm'}"
+                    )
+                except Exception as e:
+                    print(f"杀死进程 {pid} 失败: {e}")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
-    for pid in lmdeploy_pids:
-        try:
-            subprocess.run(["kill", "-9", str(pid)])
-            print(f"已杀死 lmdeploy 进程 pid: {pid}")
-        except Exception as e:
-            print(f"杀死进程 {pid} 失败: {e}")
-
-    # 获取所有包含 'vllm' 的进程 pid，并用 kill -9 杀掉
-    vllm_pids = []
-    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
-        try:
-            cmdline = " ".join(proc.info["cmdline"]) if proc.info["cmdline"] else ""
-            if "vllm" in cmdline:
-                vllm_pids.append(proc.info["pid"])
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
-    for pid in vllm_pids:
-        try:
-            subprocess.run(["kill", "-9", str(pid)])
-            print(f"已杀死 vllm 进程 pid: {pid}")
-        except Exception as e:
-            print(f"杀死 vllm 进程 {pid} 失败: {e}")
