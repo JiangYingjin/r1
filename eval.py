@@ -570,3 +570,19 @@ if __name__ == "__main__":
             print(f"已杀死 lmdeploy 进程 pid: {pid}")
         except Exception as e:
             print(f"杀死进程 {pid} 失败: {e}")
+
+    # 获取所有包含 'vllm' 的进程 pid，并用 kill -9 杀掉
+    vllm_pids = []
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+        try:
+            cmdline = " ".join(proc.info["cmdline"]) if proc.info["cmdline"] else ""
+            if "vllm" in cmdline:
+                vllm_pids.append(proc.info["pid"])
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+    for pid in vllm_pids:
+        try:
+            subprocess.run(["kill", "-9", str(pid)])
+            print(f"已杀死 vllm 进程 pid: {pid}")
+        except Exception as e:
+            print(f"杀死 vllm 进程 {pid} 失败: {e}")

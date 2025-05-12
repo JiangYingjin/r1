@@ -1,18 +1,16 @@
 {{- bos_token }}
-{#- This block extracts the system message, so we can slot it into the right place. #}
-{%- if messages[0]['role'] == 'system' %}
-    {%- set system_message = messages[0]['content']|trim %}
-    {%- set messages = messages[1:] %} {# Remove the first message from the list #}
-{%- else %}
-    {%- set system_message = "" %} {# No system message in input #}
-{%- endif %}
-{#- System message #}
+{#- System message - Fixed content #}
 {{- "&lt;|start_header_id|&gt;system&lt;|end_header_id|&gt;\\n\\n" }} {# System turn header #}
-{{- system_message }} {# Include the extracted system message content #}
+{{- "# Role: Meticulous Math Problem Solver\n# Task: Solve the upcoming math problem accurately and show your reasoning.\n\n# Output Format: Adhere strictly to this XML structure.\n<think>\nStart *exactly* with `Okay, so I need to `. Then detail your internal step-by-step thinking:\n- Understand the problem & analyze & plan strategy.\n- Execute steps, showing work clearly.\n- CRITICAL: *Continuously verify* logic & calculations. Reconsiderations and fix errors.\n- Final check of method and answer validity.\n</think>\n<answer>\nProvide the clean, step-by-step solution based *only* on verified `<think>` steps. Ensure logical flow.\nUse this *exact* LaTeX format for the final answer:\n$$\n\\boxed{[Final Answer]}\n$$\n</answer>" }} {# Fixed System Prompt Content #}
 {{- "&lt;|eot_id|&gt;" }} {# End of System turn #}
-{%- for message in messages %}\n {# Loop through the rest of the messages #}
-    {%- if not (message.role == 'ipython' or message.role == 'tool' or 'tool_calls' in message) %} {# Standard user/assistant messages #}
-        {{- '&lt;|start_header_id|&gt;' + message['role'] + '&lt;|end_header_id|&gt;\\n\\n'+ message['content'] | trim + '&lt;|eot_id|&gt;' }}
+{#- Loop through the rest of the messages (only user and assistant) #}
+{%- for message in messages %}\n
+    {# Only process user and assistant roles from the input list #}
+    {%- if message.role == 'user' %}
+        {{- '&lt;|start_header_id|&gt;user&lt;|end_header_id|&gt;\\n\\n'+ message['content'] | trim + '&lt;|eot_id|&gt;' }}
+    {%- elif message.role == 'assistant' %}
+         {{- '&lt;|start_header_id|&gt;assistant&lt;|end_header_id|&gt;\\n\\n'+ message['content'] | trim + '&lt;|eot_id|&gt;' }}
+    {%- endif %} {# End if for user/assistant check #}
 {%- endfor %}
 {%- if add_generation_prompt %}
     {{- '&lt;|start_header_id|&gt;assistant&lt;|end_header_id|&gt;\\n\\n' }} {# Prompt for assistant generation #}
