@@ -31,7 +31,11 @@ plt.rcParams["lines.markersize"] = 9  # 稍微再增大标记
 plt.rcParams["lines.linewidth"] = 2.4
 
 # 颜色方案
+
 color_baseline_orig = "#000000"  # 纯黑色 (基线)
+color_baseline_orig_fig6 = "#778899"  # 基线颜色
+linestyle_baseline_orig_fig6 = ":"  # 基线线条样式 (点线)
+linewidth_baseline_orig_fig6 = 1.8  # 基线线条宽度
 color_baseline_prompt = "#FF8C00"  # 深橙色
 color_rl_tuned = "#1f77b4"  # Matplotlib 默认蓝色
 
@@ -93,6 +97,21 @@ for fig_idx in range(1, 7):
         rl_accuracies_log = [
             rl_accuracies[i] for i, step in enumerate(rl_steps) if step > 0
         ]
+        # 6. 绘制基线点和基线+模板线（x=最小步数）
+        ax.axhline(
+            y=baseline_no_template_accuracy,
+            color=color_baseline_orig_fig6,
+            linestyle=linestyle_baseline_orig_fig6,
+            linewidth=linewidth_baseline_orig_fig6,
+            label=f"基线",
+        )
+        ax.axhline(
+            y=baseline_with_template_accuracy,
+            color=color_baseline_prompt,
+            linestyle=linestyle_baseline_prompt,
+            linewidth=plt.rcParams["lines.linewidth"],
+            label="基线 + 对话模版",
+        )
         # 2. 绘制RL微调曲线（对数轴）
         ax.plot(
             rl_steps_log,
@@ -103,7 +122,7 @@ for fig_idx in range(1, 7):
             color=color_rl_tuned,
             linestyle=linestyle_rl_tuned,
             linewidth=plt.rcParams["lines.linewidth"] + 0.4,
-            label="RL 微调（本文方法）",
+            label="RL 微调",
         )
         # 3. 设置对数尺度
         ax.set_xscale("log")
@@ -111,58 +130,61 @@ for fig_idx in range(1, 7):
         ax.set_xticks(rl_steps_log)
         # 5. 设置刻度标签为整数
         ax.set_xticklabels([str(int(x)) for x in rl_steps_log])
-        # 6. 绘制基线点和基线+模板线（x=最小步数）
-        ax.plot(
-            min(rl_steps_log),
-            baseline_no_template_accuracy,
-            marker=marker_baseline_orig,
-            markeredgecolor=color_baseline_orig,
-            markerfacecolor="none",
-            label="基线",
-            linestyle="None",
-            markersize=plt.rcParams["lines.markersize"],
-        )
-        ax.axhline(
-            y=baseline_with_template_accuracy,
-            color=color_baseline_prompt,
-            linestyle=linestyle_baseline_prompt,
-            linewidth=plt.rcParams["lines.linewidth"],
-            label="基线 + 对话模版",
-        )
         # 7. 标注RL点数值
         for i, step in enumerate(rl_steps_log):
-            ax.text(
-                step,
-                rl_accuracies_log[i] + 0.4,
-                f"{rl_accuracies_log[i]:.2f}",
-                ha="center",
-                va="bottom",
-                fontsize=value_on_point_fontsize,
-                color=color_rl_tuned,
-                fontweight="semibold",
-            )
-        # 8. 标注基线点数值
-        ax.text(
-            min(rl_steps_log),
-            baseline_no_template_accuracy + 0.4,
-            f"{baseline_no_template_accuracy:.2f}",
-            ha="center",
-            va="bottom",
-            fontsize=value_on_point_fontsize,
-            color=color_baseline_orig,
-            fontweight="semibold",
-        )
+            if step in [100, 300]:
+                ax.text(
+                    step,
+                    rl_accuracies_log[i] + 0.2,
+                    f"{rl_accuracies_log[i]:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=value_on_point_fontsize,
+                    color=color_rl_tuned,
+                    fontweight="semibold",
+                )
+            elif step == 1000:
+                ax.text(
+                    step + 100,
+                    rl_accuracies_log[i] + 0.4,
+                    f"{rl_accuracies_log[i]:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=value_on_point_fontsize,
+                    color=color_rl_tuned,
+                    fontweight="semibold",
+                )
+            elif step == 7000:
+                ax.text(
+                    step - 1600,
+                    rl_accuracies_log[i],
+                    f"{rl_accuracies_log[i]:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=value_on_point_fontsize,
+                    color=color_rl_tuned,
+                    fontweight="semibold",
+                )
+            else:
+                ax.text(
+                    step,
+                    rl_accuracies_log[i] + 0.4,
+                    f"{rl_accuracies_log[i]:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=value_on_point_fontsize,
+                    color=color_rl_tuned,
+                    fontweight="semibold",
+                )
         # 9. 其余设置同原代码
-        ax.set_xlabel(
-            "RL 训练步数（对数尺度）", fontweight="bold", labelpad=20
-        )
+        ax.set_xlabel("RL 训练步数（对数尺度）", fontweight="bold", labelpad=20)
         ax.set_ylabel("评估准确率（%）", fontweight="bold", labelpad=20)
         x_max = max(rl_steps_log)
         ax.set_xlim(min(rl_steps_log) * 0.8, x_max * 1.2)
         all_y_values = [baseline_no_template_accuracy] + rl_accuracies_log
         y_min_data = min(all_y_values)
         y_max_data = max(all_y_values)
-        y_min_plot = math.floor(y_min_data) - 0.5
+        y_min_plot = math.floor(y_min_data) - 1
         y_max_plot = math.ceil(y_max_data) + 0.5
         ax.set_ylim(y_min_plot, y_max_plot)
         major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
@@ -226,7 +248,7 @@ for fig_idx in range(1, 7):
         color=color_rl_tuned,
         linestyle=linestyle_rl_tuned,
         linewidth=plt.rcParams["lines.linewidth"] + 0.4,
-        label="RL 微调（本文方法）",
+        label="RL 微调（本文方法）" if fig_idx <= 3 else "RL 微调",
     )
 
     # 4. 在每个点上显示数值
