@@ -13,3 +13,4 @@ data/raw
 data/processed
 tmp
 .aider*
+plots/output
