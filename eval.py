@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 from tqdm import tqdm
 import psutil
 import argparse
+import requests
 
 
 # =================== argparse 解析命令行参数 ===================
@@ -32,7 +33,7 @@ def parse_args():
     parser.add_argument(
         "--step",
         type=int,
-        default=300,
+        default=0,
         help="评测步数 (evaluation step)",
     )
     parser.add_argument(
@@ -200,7 +201,7 @@ def deploy_model_lmdeploy(
         ),
     ]
     if not no_chat_template:
-        cmd += ["--chat-template", 'chat_template.json']
+        cmd += ["--chat-template", "chat_template.json"]
     cmd += [
         "--model-name",
         model_name,
@@ -381,8 +382,6 @@ def load_gsm8k_test_data():
 
     if not gsm8k_test_path.exists():
         print(f"数据文件不存在，下载中：{gsm8k_test_path}")
-        import requests
-
         test_data_url = "https://raw.githubusercontent.com/openai/grade-school-math/refs/heads/master/grade_school_math/data/test.jsonl"
         resp = requests.get(
             test_data_url,
@@ -477,7 +476,7 @@ if __name__ == "__main__":
     print(f"模型名称: {model_name}")
     print(f"实验名称: {exp_name}")
     print(f"评测步数: {step}")
-    print(f"使用 Chat Template: {not no_chat_template}")
+    print(f"使用对话模版: {not no_chat_template}")
     print("=" * 100)
 
     # 检查合并后的ckpt目录是否存在，不存在则先下载并合并
@@ -548,13 +547,29 @@ if __name__ == "__main__":
 
     # 验证和统计
     accuracy = verify_and_calculate_accuracy(out_file)
-    print("=" * 100)
+    
+    print("=" * 46 + " Result " + "=" * 46)
     print(f"模型名称: {model_name}")
     print(f"实验名称: {exp_name}")
     print(f"评测步数: {step}")
-    print(f"使用 Chat Template: {not no_chat_template}")
+    print(f"使用对话模版: {not no_chat_template}")
     print(f"准确率: {accuracy:.2%}")
     print("=" * 100)
+
+    # 通知模型评测结果
+    r = requests.post(
+        "https://n.jyj.cx",
+        json={
+            "content": f"""
+模型名称：{model_name}
+实验名称：{exp_name}
+评测步数：{step}
+使用对话模版：{not no_chat_template}
+准确率：{accuracy:.2%}
+""",
+            "title": "[本科毕设] GRPO 模型评测结果",
+        },
+    )
 
     # 获取所有包含 'lmdeploy' 或 'vllm' 的进程 pid，并用 kill -9 杀掉
     for proc in psutil.process_iter(["pid", "name", "cmdline"]):
