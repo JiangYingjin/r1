@@ -121,38 +121,48 @@ for fig_idx in range(1, 7):
     )
 
     # 4. 在每个点上显示数值
-    show_values_on_points = True
-    if show_values_on_points:
-        # 标注 RL 曲线上的点
-        for i, step in enumerate(rl_steps):
-            vertical_offset = 0.4  # 增大垂直偏移，给更大的字留空间
-            horizontal_align = "center"
-            text_color = color_rl_tuned
-            fontweight_value = "semibold"  # 加粗数值
-            current_step_display = step
+    # 标注 RL 曲线上的点
+    for i, step in enumerate(rl_steps):
+        # 默认参数
+        vertical_offset = 0.4  # 增大垂直偏移，给更大的字留空间
+        horizontal_align = "center"
+        text_color = color_rl_tuned
+        fontweight_value = "semibold"  # 加粗数值
+        current_step_display = step
+        x_offset = 0
+        y_offset = vertical_offset
 
-            ax.text(
-                current_step_display,
-                rl_accuracies[i] + vertical_offset,
-                f"{rl_accuracies[i]:.2f}",
-                ha=horizontal_align,
-                va="bottom",
-                fontsize=value_on_point_fontsize,
-                color=text_color,
-                fontweight=fontweight_value,
-            )
+        # 仅在fig2时，第0步和第50步的RL点数值标注在点的左上方
+        # For fig2, annotate the value of RL points at step 0 and 50 at the upper left of the point
+        if fig_idx == 2 and (step == 0 or step == 50):
+            horizontal_align = "center"  # 左对齐
+            x_offset = -8  # 向左偏移一点（单位为数据坐标，适当调整）
+            y_offset = vertical_offset  # 向上偏移更多
+            # 中文注释：左上方显示
+            # English: show at upper left
 
-        # 单独标注原始基线的值
         ax.text(
-            0,
-            baseline_no_template_accuracy + vertical_offset,
-            f"{baseline_no_template_accuracy:.2f}",  # 基线数值也放点上方
-            ha="center",
+            current_step_display + x_offset,
+            rl_accuracies[i] + y_offset,
+            f"{rl_accuracies[i]:.2f}",
+            ha=horizontal_align,
             va="bottom",
             fontsize=value_on_point_fontsize,
-            color=color_baseline_orig,
+            color=text_color,
             fontweight=fontweight_value,
         )
+
+    # 单独标注原始基线的值
+    ax.text(
+        0,
+        baseline_no_template_accuracy + vertical_offset,
+        f"{baseline_no_template_accuracy:.2f}",  # 基线数值也放点上方
+        ha="center",
+        va="bottom",
+        fontsize=value_on_point_fontsize,
+        color=color_baseline_orig,
+        fontweight=fontweight_value,
+    )
 
     # --- 设置图表标题和标签 ---
     # ax.set_title(f"{model_name_display} 在 GSM8K 上的评估准确率", fontweight="bold", pad=30, fontsize=title_fontsize)
