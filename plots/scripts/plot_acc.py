@@ -31,13 +31,13 @@ plt.rcParams["lines.markersize"] = 9  # 稍微再增大标记
 plt.rcParams["lines.linewidth"] = 2.4
 
 # 颜色方案
-
 color_baseline_orig = "#000000"  # 纯黑色 (基线)
-color_baseline_orig_fig6 = "#778899"  # 基线颜色
+# color_baseline_orig = "#5D4037"       # 深棕色 (Brown Darken-2 - Material Design)
+color_baseline_orig_fig6 = "#A1887F"  # 灰褐色 (Brown Lighten-1 - Material Design)
 linestyle_baseline_orig_fig6 = ":"  # 基线线条样式 (点线)
 linewidth_baseline_orig_fig6 = 1.8  # 基线线条宽度
-color_baseline_prompt = "#FF8C00"  # 深橙色
-color_rl_tuned = "#1f77b4"  # Matplotlib 默认蓝色
+color_baseline_prompt = "#BF360C"  # 深橙红色 (Deep Orange Darken-4 - Material Design)
+color_rl_tuned = "#0D47A1"  # 非常深的蓝色 (Blue Darken-4 - Material Design)
 
 # 标记样式
 marker_baseline_orig = "o"

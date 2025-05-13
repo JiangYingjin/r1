@@ -10,3 +10,7 @@ Math-Verify==0.5.2
 # 工具
 yq
 nvitop
+
+# 科研绘图
+matplotlib
+seaborn

@@ -1,5 +1,5 @@
 import wandb
-import os
+from pathlib import Path
 import json
 
 api = wandb.Api()
@@ -19,8 +19,8 @@ run_ids = {
 }
 
 # 确保保存目录存在
-save_dir = "plots/data/wandb"
-os.makedirs(save_dir, exist_ok=True)
+save_dir = Path("plots/data/wandb")
+save_dir.mkdir(parents=True, exist_ok=True)
 
 # 获取指定的 Run 对象并下载所有指标
 for run_key, run_id in run_ids.items():
@@ -37,9 +37,9 @@ for run_key, run_id in run_ids.items():
         metrics = [dict(row) for row in history]  # 保留所有字段
 
         # 保存为 JSON 格式
-        save_path = os.path.join(save_dir, f"{run_key}.json")
+        save_path = save_dir / f"{run_key}.json"
         with open(save_path, "w") as f:
-            json.dump(metrics, f)
+            json.dump(metrics, f, indent=2)
         print(f"数据已保存到 {save_path}")
     except Exception as e:
         print(f"获取历史数据失败: {e}")
