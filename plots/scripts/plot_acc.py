@@ -185,7 +185,7 @@ for fig_idx in range(1, 7):
         y_min_data = min(all_y_values)
         y_max_data = max(all_y_values)
         y_min_plot = math.floor(y_min_data) - 1
-        y_max_plot = math.ceil(y_max_data) + 0.5
+        y_max_plot = math.ceil(y_max_data) + 1.5
         ax.set_ylim(y_min_plot, y_max_plot)
         major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
         ax.set_yticks(major_y_ticks)
@@ -206,6 +206,12 @@ for fig_idx in range(1, 7):
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_linewidth(1)
         ax.spines["bottom"].set_linewidth(1)
+
+        # --- 增强边框感（Enhance border/spine for academic style）---
+        for spine in ["left", "bottom", "top", "right"]:
+            ax.spines[spine].set_visible(True)  # 确保四周边框都显示
+            ax.spines[spine].set_linewidth(1.2)  # 增加边框粗细
+            ax.spines[spine].set_color("black")  # 统一为黑色
         ax.tick_params(
             axis="both", which="major", direction="out", length=6, width=1, pad=10
         )
@@ -307,7 +313,11 @@ for fig_idx in range(1, 7):
     y_min_data = min(all_y_values)
     y_max_data = max(all_y_values)
     y_min_plot = math.floor(y_min_data)
-    y_max_plot = math.ceil(y_max_data) + 0.5
+    y_max_plot = (
+        math.ceil(y_max_data) + 0.5
+        if y_max_data % 1 < 0.5
+        else math.ceil(y_max_data) + 1
+    )
     ax.set_ylim(y_min_plot, y_max_plot)
     ax.set_xticks([0] + rl_steps)
     major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
@@ -340,6 +350,12 @@ for fig_idx in range(1, 7):
     ax.tick_params(
         axis="both", which="major", direction="out", length=6, width=1, pad=10
     )  # 增大pad
+
+    # --- 增强边框感（Enhance border/spine for academic style）---
+    for spine in ["left", "bottom", "top", "right"]:
+        ax.spines[spine].set_visible(True)  # 确保四周边框都显示
+        ax.spines[spine].set_linewidth(1.2)  # 增加边框粗细
+        ax.spines[spine].set_color("black")  # 统一为黑色
 
     # --- 显示并保存图表 ---
     plt.tight_layout(pad=2.2)
