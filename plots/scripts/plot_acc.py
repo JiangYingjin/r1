@@ -39,6 +39,9 @@ linewidth_baseline_orig_fig6 = 1.8  # 基线线条宽度
 color_baseline_prompt = "#BF360C"  # 深橙红色 (Deep Orange Darken-4 - Material Design)
 color_rl_tuned = "#0D47A1"  # 非常深的蓝色 (Blue Darken-4 - Material Design)
 
+grid_main_color = "#999999"  # 稍微浅一点的灰色
+grid_minor_color = "#cccccc"
+
 # 标记样式
 marker_baseline_orig = "o"
 marker_rl_tuned = "o"
@@ -187,8 +190,34 @@ for fig_idx in range(1, 7):
         y_min_plot = math.floor(y_min_data) - 1
         y_max_plot = math.ceil(y_max_data) + 1.5
         ax.set_ylim(y_min_plot, y_max_plot)
-        major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
+        # 主刻度每隔 1
+        major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 1)
         ax.set_yticks(major_y_ticks)
+        # 次刻度每隔 0.2
+        minor_y_ticks = np.arange(y_min_plot, y_max_plot + 0.2, 0.2)
+        ax.set_yticks(minor_y_ticks, minor=True)
+        # 主网格线（每隔 1，较粗且深色）
+        ax.grid(
+            True,
+            which="major",
+            axis="y",
+            linestyle="-",
+            alpha=0.7,
+            linewidth=1.2,
+            color=grid_main_color,
+        )
+        # 次网格线（每隔 0.2，较细且淡色）
+        ax.grid(
+            True,
+            which="minor",
+            axis="y",
+            linestyle=":",
+            alpha=0.25,
+            linewidth=0.5,
+            color=grid_minor_color,
+        )
+        # x 轴主网格线保持原样
+        ax.grid(True, which="major", axis="x", linestyle=":", alpha=0.4, linewidth=0.6)
         legend = ax.legend(
             loc="lower left",
             frameon=True,
@@ -201,7 +230,6 @@ for fig_idx in range(1, 7):
         )
         legend.get_frame().set_edgecolor("darkgray")
         legend.get_frame().set_linewidth(0.7)
-        ax.grid(True, which="both", linestyle=":", alpha=0.4, linewidth=0.6)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_linewidth(1)
@@ -320,8 +348,36 @@ for fig_idx in range(1, 7):
     )
     ax.set_ylim(y_min_plot, y_max_plot)
     ax.set_xticks([0] + rl_steps)
-    major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
+    # 主刻度每隔 1
+    major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 1)
     ax.set_yticks(major_y_ticks)
+    # 次刻度每隔 0.2
+    minor_y_ticks = np.arange(y_min_plot, y_max_plot + 0.2, 0.2)
+    ax.set_yticks(minor_y_ticks, minor=True)
+
+    # --- 添加网格线 ---
+    # 主网格线（每隔 1，较粗且深色）
+    ax.grid(
+        True,
+        which="major",
+        axis="y",
+        linestyle="-",
+        alpha=0.7,
+        linewidth=1.2,
+        color=grid_main_color,
+    )
+    # 次网格线（每隔 0.2，较细且淡色）
+    ax.grid(
+        True,
+        which="minor",
+        axis="y",
+        linestyle=":",
+        alpha=0.25,
+        linewidth=0.5,
+        color=grid_minor_color,
+    )
+    # x 轴主网格线保持原样
+    ax.grid(True, which="major", axis="x", linestyle=":", alpha=0.4, linewidth=0.6)
 
     # --- 添加图例 ---
     legend = ax.legend(
@@ -336,11 +392,6 @@ for fig_idx in range(1, 7):
     )
     legend.get_frame().set_edgecolor("darkgray")
     legend.get_frame().set_linewidth(0.7)
-
-    # --- 添加网格线 ---
-    ax.grid(
-        True, which="major", linestyle=":", alpha=0.4, linewidth=0.6
-    )  # 网格线更淡一些
 
     # --- 优化外观 ---
     ax.spines["top"].set_visible(False)
