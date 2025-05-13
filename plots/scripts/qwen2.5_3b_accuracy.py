@@ -81,11 +81,120 @@ for fig_idx in range(1, 7):
     rl_steps = [0] + rl_steps
     rl_accuracies = [baseline_with_template_accuracy] + rl_accuracies
 
-    # --- 开始绘图 ---
-    fig, ax = plt.subplots(
-        figsize=(10, 8)
-    )  # 调整图表尺寸以适应更大的字体和更舒展的布局
+    fig, ax = plt.subplots(figsize=(10, 8))
 
+    # --- 对fig6应用对数x轴 ---
+    if fig_idx == 6:
+        # 1. 设置X轴为对数尺度
+        # 中文：设置X轴为对数尺度，适合步数跨度较大时展示
+        # English: Set x-axis to log scale for better visualization when step range is large
+        # 注意：0不能用于对数轴，需去除0点
+        rl_steps_log = [step for step in rl_steps if step > 0]
+        rl_accuracies_log = [
+            rl_accuracies[i] for i, step in enumerate(rl_steps) if step > 0
+        ]
+        # 2. 绘制RL微调曲线（对数轴）
+        ax.plot(
+            rl_steps_log,
+            rl_accuracies_log,
+            marker=marker_rl_tuned,
+            markerfacecolor=color_rl_tuned,
+            markeredgecolor=color_rl_tuned,
+            color=color_rl_tuned,
+            linestyle=linestyle_rl_tuned,
+            linewidth=plt.rcParams["lines.linewidth"] + 0.4,
+            label="RL 微调（本文方法）",
+        )
+        # 3. 设置对数尺度
+        ax.set_xscale("log")
+        # 4. 设置主刻度点为实际步数
+        ax.set_xticks(rl_steps_log)
+        # 5. 设置刻度标签为整数
+        ax.set_xticklabels([str(int(x)) for x in rl_steps_log])
+        # 6. 绘制基线点和基线+模板线（x=最小步数）
+        ax.plot(
+            min(rl_steps_log),
+            baseline_no_template_accuracy,
+            marker=marker_baseline_orig,
+            markeredgecolor=color_baseline_orig,
+            markerfacecolor="none",
+            label="基线",
+            linestyle="None",
+            markersize=plt.rcParams["lines.markersize"],
+        )
+        ax.axhline(
+            y=baseline_with_template_accuracy,
+            color=color_baseline_prompt,
+            linestyle=linestyle_baseline_prompt,
+            linewidth=plt.rcParams["lines.linewidth"],
+            label="基线 + 对话模版",
+        )
+        # 7. 标注RL点数值
+        for i, step in enumerate(rl_steps_log):
+            ax.text(
+                step,
+                rl_accuracies_log[i] + 0.4,
+                f"{rl_accuracies_log[i]:.2f}",
+                ha="center",
+                va="bottom",
+                fontsize=value_on_point_fontsize,
+                color=color_rl_tuned,
+                fontweight="semibold",
+            )
+        # 8. 标注基线点数值
+        ax.text(
+            min(rl_steps_log),
+            baseline_no_template_accuracy + 0.4,
+            f"{baseline_no_template_accuracy:.2f}",
+            ha="center",
+            va="bottom",
+            fontsize=value_on_point_fontsize,
+            color=color_baseline_orig,
+            fontweight="semibold",
+        )
+        # 9. 其余设置同原代码
+        ax.set_xlabel(
+            "RL 训练步数（对数尺度）", fontweight="bold", labelpad=20
+        )
+        ax.set_ylabel("评估准确率（%）", fontweight="bold", labelpad=20)
+        x_max = max(rl_steps_log)
+        ax.set_xlim(min(rl_steps_log) * 0.8, x_max * 1.2)
+        all_y_values = [baseline_no_template_accuracy] + rl_accuracies_log
+        y_min_data = min(all_y_values)
+        y_max_data = max(all_y_values)
+        y_min_plot = math.floor(y_min_data) - 0.5
+        y_max_plot = math.ceil(y_max_data) + 0.5
+        ax.set_ylim(y_min_plot, y_max_plot)
+        major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
+        ax.set_yticks(major_y_ticks)
+        legend = ax.legend(
+            loc="lower left",
+            frameon=True,
+            shadow=False,
+            borderpad=0.8,
+            labelspacing=0.7,
+            handletextpad=0.8,
+            markerscale=0.9,
+            fontsize=legend_fontsize,
+        )
+        legend.get_frame().set_edgecolor("darkgray")
+        legend.get_frame().set_linewidth(0.7)
+        ax.grid(True, which="both", linestyle=":", alpha=0.4, linewidth=0.6)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_linewidth(1)
+        ax.spines["bottom"].set_linewidth(1)
+        ax.tick_params(
+            axis="both", which="major", direction="out", length=6, width=1, pad=10
+        )
+        plt.tight_layout(pad=2.2)
+        file_name = os.path.join(output_dir, f"fig{fig_idx}.png")
+        plt.savefig(file_name, dpi=300, bbox_inches="tight")
+        print(f"图表已保存为: {file_name}")
+        plt.close(fig)
+        continue
+
+    # --- 开始绘图 ---
     # 1. 绘制 基线 - 一个点 (空心)
     ax.plot(
         0,
