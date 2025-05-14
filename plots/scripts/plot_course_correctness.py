@@ -103,7 +103,7 @@ def plot_smoothed_timeseries_full_range(
 
 if __name__ == "__main__":
     plt.figure(figsize=(8, 6))
-    group_y_after_100 = {}
+    group_y = {}
     for fig_key, run_name in fig_run_name.items():
         json_path = f"plots/data/wandb/{run_name}.json"
         try:
@@ -136,8 +136,7 @@ if __name__ == "__main__":
         mask = (x >= 1) & (x <= 300)
         x = x[mask]
         y = y[mask]
-        mask_100 = x > 100
-        group_y_after_100[fig_key] = y[mask_100]
+        group_y[fig_key] = y
         color = color_map[fig_key]
         label = label_map[fig_key]
         plot_smoothed_timeseries_full_range(
@@ -153,24 +152,24 @@ if __name__ == "__main__":
             label=label,
         )
     # --- 统计分析 ---
-    y_4 = group_y_after_100.get(4, np.array([]))
-    y_1 = group_y_after_100.get(1, np.array([]))
+    y_4 = group_y.get(4, np.array([]))
+    y_1 = group_y.get(1, np.array([]))
     mean_4 = np.mean(y_4) if len(y_4) > 0 else float("nan")
     std_4 = np.std(y_4) if len(y_4) > 0 else float("nan")
     mean_1 = np.mean(y_1) if len(y_1) > 0 else float("nan")
     std_1 = np.std(y_1) if len(y_1) > 0 else float("nan")
     ratio = mean_4 / mean_1 if mean_1 != 0 else float("nan")
     print(
-        "\n================= 正确性奖励统计/Correctness Reward Statistics ================="
+        "\n================= 准确性奖励统计/Correctness Reward Statistics ================="
     )
     print(
-        f"100步后 4 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 正确性奖励函数) 均值/Mean: {mean_4:.4f}, 标准差/Std: {std_4:.4f}, 样本数/N: {len(y_4)}"
+        f"全步骤 4 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 准确性奖励函数) 均值/Mean: {mean_4:.4f}, 标准差/Std: {std_4:.4f}, 样本数/N: {len(y_4)}"
     )
     print(
-        f"100步后 1 (Qwen2.5-3B-Instruct-QLoRA (4-bit)) 均值/Mean: {mean_1:.4f}, 标准差/Std: {std_1:.4f}, 样本数/N: {len(y_1)}"
+        f"全步骤 1 (Qwen2.5-3B-Instruct-QLoRA (4-bit)) 均值/Mean: {mean_1:.4f}, 标准差/Std: {std_1:.4f}, 样本数/N: {len(y_1)}"
     )
     print(
-        f"4 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 正确性奖励函数) 是 1 的/Ratio: {ratio:.3f} 倍"
+        f"4 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 准确性奖励函数) 是 1 的/Ratio: {ratio:.3f} 倍"
     )
     print(
         "==========================================================================\n"
@@ -188,7 +187,7 @@ if __name__ == "__main__":
         ax.spines[spine].set_linewidth(0.8)
         ax.spines[spine].set_color("black")
     plt.tight_layout()
-    save_path = "plots/output/correctness_reward.png"
+    save_path = "plots/output/course_correctness_reward.png"
     plt.savefig(save_path, dpi=200, bbox_inches="tight")
     plt.close()
     print(f"已保存: {save_path}")
