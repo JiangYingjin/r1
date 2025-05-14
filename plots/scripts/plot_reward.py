@@ -12,20 +12,17 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["axes.unicode_minus"] = False
 
 fig_run_name = {
-    5: "course_2",
     1: "better_reward_3",
     2: "better_reward_qwen2.5_1.5b",
     3: "better_reward_llama",
 }
 
 color_map = {
-    5: "#D55E00",  # Deep Orange (Protagonist)
     1: "#0072B2",  # Darker Blue (Control 1)
     2: "#56B4E9",  # Lighter/Sky Blue (Control 3)
     3: "#009E73",  # Teal/Green (Control 2)
 }
 label_map = {
-    5: "Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数",
     1: "Qwen2.5-3B-Instruct-QLoRA (4-bit)",
     2: "Qwen2.5-1.5B-Instruct-QLoRA (4-bit)",
     3: "Llama3.2-3B-Instruct-QLoRA (4-bit)",
@@ -109,7 +106,7 @@ def plot_smoothed_timeseries_full_range(
 
 if __name__ == "__main__":
     plt.figure(figsize=(8, 6))
-    group_y_after_100 = {}
+    group_y = {}
     for fig_key, run_name in fig_run_name.items():
         json_path = f"plots/data/wandb/{run_name}.json"
         try:
@@ -126,40 +123,49 @@ if __name__ == "__main__":
             [
                 item["train/global_step"]
                 for item in data
-                if "train/global_step" in item and "train/completion_length" in item
+                if "train/global_step" in item
+                and all(
+                    k in item
+                    for k in [
+                        "train/rewards/format_reward",
+                        "train/rewards/length_reward",
+                        "train/rewards/reasoning_reward",
+                        "train/rewards/reasoning_efficiency_reward",
+                    ]
+                )
             ]
         )
         y = np.array(
             [
-                item["train/completion_length"]
+                item["train/rewards/format_reward"]
+                + item["train/rewards/length_reward"]
+                + item["train/rewards/reasoning_reward"]
+                + item["train/rewards/reasoning_efficiency_reward"]
                 for item in data
-                if "train/global_step" in item and "train/completion_length" in item
+                if "train/global_step" in item
+                and all(
+                    k in item
+                    for k in [
+                        "train/rewards/format_reward",
+                        "train/rewards/length_reward",
+                        "train/rewards/reasoning_reward",
+                        "train/rewards/reasoning_efficiency_reward",
+                    ]
+                )
             ]
         )
-        # 只保留1~5在1~300步的数据
+        # 只保留1~3在1~300步的数据
         mask = (x >= 1) & (x <= 300)
         x = x[mask]
         y = y[mask]
-        mask_100 = x > 100
-        group_y_after_100[fig_key] = y[mask_100]
-        # # 调试信息
-        # print(f"[DEBUG] fig_key={fig_key}, run_name={run_name}")
-        # print(f"  x.shape={x.shape}, y.shape={y.shape}")
-        # print(
-        #     f"  x范围: min={x.min() if len(x)>0 else 'NA'}, max={x.max() if len(x)>0 else 'NA'}"
-        # )
-        # print(f"  mask_100.sum={mask_100.sum()}, 100步后y长度={len(y[mask_100])}")
-        # if len(y[mask_100]) > 0:
-        #     print(f"  100步后y前5: {y[mask_100][:5]}")
-        # else:
-        #     print(f"  100步后y为空")
+        group_y[fig_key] = y
         color = color_map[fig_key]
         label = label_map[fig_key]
         plot_smoothed_timeseries_full_range(
             x_values=x,
             y_values=y,
             smoothing_window_size=10,
-            outlier_detection_window_size=30,
+            outlier_detection_window_size=100,
             outlier_std_factor=2.5,
             original_color_hex=color + "55",
             smoothed_color_hex=color,
@@ -167,69 +173,47 @@ if __name__ == "__main__":
             plot_raw=True,
             label=label,
         )
-    # # --- 统计分析 ---
-    # print("\n[DEBUG] group_y_after_100 keys:", list(group_y_after_100.keys()))
-    # for k, v in group_y_after_100.items():
-    #     print(
-    #         f"[DEBUG] fig_key={k}, 100步后y长度={len(v)}, 前5: {v[:5] if len(v)>0 else '[]'}"
-    #     )
-    # 5组
-    y_5 = group_y_after_100.get(5, np.array([]))
-    # 1,2,3组
-    y_1 = group_y_after_100.get(1, np.array([]))
-    y_2 = group_y_after_100.get(2, np.array([]))
-    y_3 = group_y_after_100.get(3, np.array([]))
-    y_123 = np.concatenate([y_1, y_2, y_3])
-    # 计算均值和标准差
-    mean_5 = np.mean(y_5) if len(y_5) > 0 else float("nan")
-    std_5 = np.std(y_5) if len(y_5) > 0 else float("nan")
+    # --- 统计分析 ---
+    y_1 = group_y.get(1, np.array([]))
+    y_2 = group_y.get(2, np.array([]))
+    y_3 = group_y.get(3, np.array([]))
     mean_1 = np.mean(y_1) if len(y_1) > 0 else float("nan")
     std_1 = np.std(y_1) if len(y_1) > 0 else float("nan")
     mean_2 = np.mean(y_2) if len(y_2) > 0 else float("nan")
     std_2 = np.std(y_2) if len(y_2) > 0 else float("nan")
     mean_3 = np.mean(y_3) if len(y_3) > 0 else float("nan")
     std_3 = np.std(y_3) if len(y_3) > 0 else float("nan")
-    mean_123 = np.mean(y_123) if len(y_123) > 0 else float("nan")
-    std_123 = np.std(y_123) if len(y_123) > 0 else float("nan")
-    ratio = mean_5 / mean_123 if mean_123 != 0 else float("nan")
-    # 打印结果
     print(
-        "\n================= 响应长度统计/Response Length Statistics ================="
+        "\n================= 总奖励值（不含准确性奖励值）统计/Total Reward (w/o Correctness) Statistics ================="
     )
     print(
-        f"100步后 5 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数) 响应长度均值/Mean: {mean_5:.2f}, 标准差/Std: {std_5:.2f}, 样本数/N: {len(y_5)}"
+        f"全步骤 1 (Qwen2.5-3B-Instruct-QLoRA (4-bit)) 总奖励均值/Mean: {mean_1:.4f}, 标准差/Std: {std_1:.4f}, 样本数/N: {len(y_1)}"
     )
     print(
-        f"100步后 1 (Qwen2.5-3B-Instruct-QLoRA (4-bit)) 响应长度均值/Mean: {mean_1:.2f}, 标准差/Std: {std_1:.2f}, 样本数/N: {len(y_1)}"
+        f"全步骤 2 (Qwen2.5-1.5B-Instruct-QLoRA (4-bit)) 总奖励均值/Mean: {mean_2:.4f}, 标准差/Std: {std_2:.4f}, 样本数/N: {len(y_2)}"
     )
     print(
-        f"100步后 2 (Qwen2.5-1.5B-Instruct-QLoRA (4-bit)) 响应长度均值/Mean: {mean_2:.2f}, 标准差/Std: {std_2:.2f}, 样本数/N: {len(y_2)}"
+        f"全步骤 3 (Llama3.2-3B-Instruct-QLoRA (4-bit)) 总奖励均值/Mean: {mean_3:.4f}, 标准差/Std: {std_3:.4f}, 样本数/N: {len(y_3)}"
     )
     print(
-        f"100步后 3 (Llama3.2-3B-Instruct-QLoRA (4-bit)) 响应长度均值/Mean: {mean_3:.2f}, 标准差/Std: {std_3:.2f}, 样本数/N: {len(y_3)}"
-    )
-    print(
-        f"100步后 1,2,3 总体响应长度均值/Mean (all 1,2,3): {mean_123:.2f}, 标准差/Std: {std_123:.2f}, 样本数/N: {len(y_123)}"
-    )
-    print(
-        f"5 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数) 是 1,2,3 总均值的/Ratio: {ratio:.3f} 倍"
-    )
-    print(
-        "==========================================================================\n"
+        "==============================================================================================\n"
     )
     plt.xlabel("RL 训练步数", fontsize=13, fontweight="bold", labelpad=15)
-    plt.ylabel("模型响应长度", fontsize=13, fontweight="bold", labelpad=15)
+    plt.ylabel(
+        "总奖励值（不含准确性奖励值）", fontsize=13, fontweight="bold", labelpad=15
+    )
     plt.xticks(fontsize=13)
     plt.yticks(fontsize=13)
     plt.legend(loc="upper right", fontsize=10, frameon=True)
     ax = plt.gca()
-    ax.set_ylim(top=1500)  # 设置y轴最大值为1600
+    # y轴范围可根据实际数据调整
+    ax.set_ylim(top=3.65)
     for spine in ["left", "bottom", "top", "right"]:
         ax.spines[spine].set_visible(True)
         ax.spines[spine].set_linewidth(0.8)
         ax.spines[spine].set_color("black")
     plt.tight_layout()
-    save_path = "plots/output/response_length.png"
+    save_path = "plots/output/total_reward_wo_correctness.png"
     plt.savefig(save_path, dpi=200, bbox_inches="tight")
     plt.close()
     print(f"已保存: {save_path}")

@@ -143,7 +143,7 @@ if __name__ == "__main__":
             x_values=x,
             y_values=y,
             smoothing_window_size=10,
-            outlier_detection_window_size=30,
+            outlier_detection_window_size=50,
             outlier_std_factor=2.5,
             original_color_hex=color + "55",
             smoothed_color_hex=color,
