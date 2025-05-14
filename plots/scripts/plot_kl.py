@@ -216,6 +216,16 @@ if __name__ == "__main__":
                 if "train/global_step" in item and "train/kl" in item
             ]
         )
+        # 只保留6_kl从100步开始的数据
+        if fig_key == 6:
+            mask = x >= 100
+            x = x[mask]
+            y = y[mask]
+        # 只保留1~5_kl在1~300步的数据
+        if fig_key in [1, 2, 3, 4, 5]:
+            mask = (x >= 1) & (x <= 300)
+            x = x[mask]
+            y = y[mask]
         # 绘图并保存
         plt.figure()
         # 针对第6个图，调整滑动窗口为500，其余为50
@@ -230,6 +240,24 @@ if __name__ == "__main__":
             ylabel="KL 散度",
             boundary_mode="reflect",
         )
+        # 完全对齐 plot_acc.py 的 6_acc x轴设置
+        if fig_key == 6:
+            ax = plt.gca()
+            ax.set_xscale("log")
+            # 只保留指定的x轴grid和刻度
+            xticks_major = [100, 200, 300, 1000, 2000, 4000, 7000]
+            ax.set_xticks(xticks_major)
+            ax.set_xticklabels([str(xx) for xx in xticks_major])
+            ax.set_xlim(min(x) * 0.8, max(x) * 1.2)
+            # 只显示指定的纵向grid（major grid）
+            ax.xaxis.grid(True, which="major")  # 只画主刻度grid
+            ax.xaxis.grid(False, which="minor")  # 不画次刻度grid
+        # 设置所有边框为黑色且加粗
+        ax = plt.gca()
+        for spine in ["left", "bottom", "top", "right"]:
+            ax.spines[spine].set_visible(True)
+            ax.spines[spine].set_linewidth(0.8)
+            ax.spines[spine].set_color("black")
         save_path = f"plots/output/{fig_key}_kl.png"
         plt.savefig(save_path, dpi=200, bbox_inches="tight")
         plt.close()
