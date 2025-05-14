@@ -187,7 +187,7 @@ if __name__ == "__main__":
         ax.spines[spine].set_linewidth(0.8)
         ax.spines[spine].set_color("black")
     plt.tight_layout()
-    save_path = "plots/output/course_correctness_reward.png"
+    save_path = "plots/output/4_course_correctness_reward.png"
     plt.savefig(save_path, dpi=200, bbox_inches="tight")
     plt.close()
     print(f"已保存: {save_path}")
