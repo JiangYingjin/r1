@@ -181,7 +181,7 @@ if __name__ == "__main__":
     plt.legend(loc="upper right", fontsize=10, frameon=True)
     ax = plt.gca()
     # y轴范围可根据实际数据调整
-    ax.set_ylim(top=2.9)
+    ax.set_ylim(top=3)
     for spine in ["left", "bottom", "top", "right"]:
         ax.spines[spine].set_visible(True)
         ax.spines[spine].set_linewidth(0.8)

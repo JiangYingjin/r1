@@ -25,7 +25,7 @@ color_map = {
     3: "#009E73",  # Teal/Green (Control 2)
 }
 label_map = {
-    5: "Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数",
+    5: "Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长思考奖励函数",
     1: "Qwen2.5-3B-Instruct-QLoRA (4-bit)",
     2: "Qwen2.5-1.5B-Instruct-QLoRA (4-bit)",
     3: "Llama3.2-3B-Instruct-QLoRA (4-bit)",
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     plt.yticks(fontsize=13)
     plt.legend(loc="upper right", fontsize=10, frameon=True)
     ax = plt.gca()
-    ax.set_ylim(top=1500)  # 设置y轴最大值为1600
+    ax.set_ylim(top=1550, bottom=0)  # 设置y轴最大值为1600
     for spine in ["left", "bottom", "top", "right"]:
         ax.spines[spine].set_visible(True)
         ax.spines[spine].set_linewidth(0.8)

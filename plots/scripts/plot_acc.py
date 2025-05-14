@@ -214,7 +214,7 @@ def plot_figure(fig_idx, fig_dict, output_dir):
     set_axis(ax, rl_steps_plot, rl_accs_plot, baseline, log_x)
     # --- 标签 ---
     ax.set_xlabel(
-        "RL 训练步数（对数尺度）" if log_x else "RL 训练步数（Steps）",
+        "RL 训练步数（对数尺度）" if log_x else "RL 训练步数",
         fontweight="bold",
         labelpad=20,
     )

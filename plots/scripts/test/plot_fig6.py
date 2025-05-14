@@ -94,7 +94,7 @@ if show_values_on_points:
 
 # --- 设置图表标题和标签 ---
 ax.set_title(f'{model_name_display} 性能变化', fontweight='bold', fontsize=title_fontsize, pad=20)
-ax.set_xlabel('RL 训练步数 (Steps, 对数尺度)', fontweight='bold', labelpad=15)
+ax.set_xlabel('RL 训练步数', fontweight='bold', labelpad=15)
 ax.set_ylabel('GSM8K 准确率 (%)', fontweight='bold', labelpad=15)
 
 # --- 设置坐标轴刻度和范围 ---
