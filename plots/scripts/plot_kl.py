@@ -245,7 +245,7 @@ if __name__ == "__main__":
             ax = plt.gca()
             ax.set_xscale("log")
             # 只保留指定的x轴grid和刻度
-            xticks_major = [100, 200, 300, 1000, 2000, 4000, 7000]
+            xticks_major = [100, 200, 300, 500, 1000, 2000, 4000, 7000]
             ax.set_xticks(xticks_major)
             ax.set_xticklabels([str(xx) for xx in xticks_major])
             ax.set_xlim(min(x) * 0.8, max(x) * 1.2)
