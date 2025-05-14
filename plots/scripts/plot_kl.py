@@ -1,10 +1,16 @@
-import json  # 新增导入
-
+import json
 import numpy as np
 import pandas as pd  # 导入 pandas 用于辅助处理（如异常值检测的滚动统计）
 import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy.ndimage import uniform_filter1d  # 导入 scipy 的一维均匀滤波器
+
+# --- 图表样式与字体设置 ---
+plt.style.use("seaborn-v0_8-whitegrid")
+
+plt.rcParams["font.serif"] = ["Noto Serif CJK JP"]
+plt.rcParams["font.sans-serif"] = ["Noto Sans CJK JP"]
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["axes.unicode_minus"] = False
 
 
 def plot_smoothed_timeseries_full_range(
@@ -104,7 +110,6 @@ def plot_smoothed_timeseries_full_range(
 
     # --- 3. 绘图 ---
     plt.figure(figsize=figsize)  # 创建新的图形，并设置大小
-    sns.set_style("whitegrid")  # 设置 Seaborn 绘图风格为 "whitegrid"（白色网格背景）
 
     # 绘制原始 (裁剪后) 数据
     plt.plot(
@@ -135,53 +140,12 @@ def plot_smoothed_timeseries_full_range(
     plt.xticks(fontsize=10)  # 设置X轴刻度标签的字体大小
     plt.yticks(fontsize=10)  # 设置Y轴刻度标签的字体大小
 
-    sns.despine()  # 移除顶部和右侧的坐标轴边框，使图形更简洁（类似 WandB 风格）
     plt.legend(fontsize=10)  # 显示图例，并指定图例字体大小
     plt.tight_layout()  # 自动调整子图参数，使其填充整个图像区域，防止标签重叠
     plt.show()  # 显示图形
 
 
-# # --- 生成示例数据 (模仿原始图像的特征) ---
-# np.random.seed(42)  # 设置随机种子以保证结果可复现
-# num_points = 280  # 数据点数量
-# x = np.arange(num_points)  # 生成X轴数据 (0, 1, ..., num_points-1)
-
-# # 基础趋势 (二次函数 + 正弦波以增加一些变化)
-# y_trend = 0.0001 * (x - 50) ** 2 - 0.5 + 0.3 * np.sin(x / 30)
-# # 噪声
-# y_noise = np.random.normal(0, 0.4, num_points)  # 生成高斯噪声
-# # 添加一些稀疏的、较大的 "异常值"
-# num_outliers = 15  # 异常值数量
-# outlier_indices = np.random.choice(
-#     num_points, num_outliers, replace=False
-# )  # 随机选择异常值的位置
-# outlier_magnitudes = np.random.uniform(-2, 2, num_outliers)  # 为异常值生成随机的幅度
-
-# # 原始信号（趋势+噪声）
-# y_signal_base = y_trend + y_noise
-# # 使趋势在末端更强
-# growth_factor = np.linspace(1, 2.5, num_points)  # 生成一个线性增长因子
-# y_signal = y_signal_base * growth_factor  # 将信号与增长因子相乘
-# y_signal[outlier_indices] += (
-#     outlier_magnitudes * 1.5
-# )  # 在指定位置添加异常值（异常值也受增长影响）
-
-
-# # --- 调用绘图函数 ---
-# plot_smoothed_timeseries_full_range(
-#     x_values=x,
-#     y_values=y_signal,
-#     smoothing_window_size=50,
-#     outlier_detection_window_size=30,  # 用于异常值检测的窗口
-#     outlier_std_factor=2.5,  # 定义异常值的标准差阈值
-#     title="训练奖励随训练步数的变化 (Reflect边界)",
-#     xlabel="全局步数",
-#     ylabel="累积奖励",
-#     boundary_mode="reflect",  # 指定边界处理模式为 'reflect'
-# )
-
-
-# 你也可以尝试其他的 boundary_mode，例如：
+# 也可以尝试其他的 boundary_mode，例如：
 # boundary_mode='nearest' # 使用最近的边界值填充
 # boundary_mode='mirror'  # 类似反射，但边界点只使用一次
 # boundary_mode='constant', cval=0.0 # 使用常数填充，cval指定常数值
