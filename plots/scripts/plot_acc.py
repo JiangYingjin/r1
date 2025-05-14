@@ -35,7 +35,7 @@ color_baseline_orig = "#000000"  # 纯黑色 (基线)
 # color_baseline_orig = "#5D4037"       # 深棕色 (Brown Darken-2 - Material Design)
 color_baseline_orig_fig6 = "#A1887F"  # 灰褐色 (Brown Lighten-1 - Material Design)
 linestyle_baseline_orig_fig6 = ":"  # 基线线条样式 (点线)
-linewidth_baseline_orig_fig6 = 1.8  # 基线线条宽度
+linewidth_baseline_orig_fig6 = 2.4  # 基线线条宽度
 color_baseline_prompt = "#BF360C"  # 深橙红色 (Deep Orange Darken-4 - Material Design)
 color_rl_tuned = "#0D47A1"  # 非常深的蓝色 (Blue Darken-4 - Material Design)
 
@@ -191,7 +191,7 @@ for fig_idx in range(1, 7):
         y_max_plot = math.ceil(y_max_data) + 1.5
         ax.set_ylim(y_min_plot, y_max_plot)
         # 主刻度每隔 1
-        major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 1)
+        major_y_ticks = np.arange(y_min_plot, y_max_plot + 1, 2)
         ax.set_yticks(major_y_ticks)
         # 次刻度每隔 0.2
         minor_y_ticks = np.arange(y_min_plot, y_max_plot + 0.2, 0.2)
