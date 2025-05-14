@@ -19,10 +19,10 @@ fig_run_name = {
 }
 
 color_map = {
-    5: "#f9c846",
-    1: "#014f86",
-    2: "#ff6f61",
-    3: "#43aa8b",
+    5: "#D55E00",  # Deep Orange (Protagonist)
+    1: "#0072B2",  # Darker Blue (Control 1)
+    2: "#56B4E9",  # Lighter/Sky Blue (Control 3)
+    3: "#009E73",  # Teal/Green (Control 2)
 }
 label_map = {
     5: "Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数",
@@ -197,21 +197,23 @@ if __name__ == "__main__":
         "\n================= 响应长度统计/Response Length Statistics ================="
     )
     print(
-        f"100步后 5 (course_2) 响应长度均值/Mean: {mean_5:.2f}, 标准差/Std: {std_5:.2f}, 样本数/N: {len(y_5)}"
+        f"100步后 5 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数) 响应长度均值/Mean: {mean_5:.2f}, 标准差/Std: {std_5:.2f}, 样本数/N: {len(y_5)}"
     )
     print(
-        f"100步后 1 (better_reward_3) 响应长度均值/Mean: {mean_1:.2f}, 标准差/Std: {std_1:.2f}, 样本数/N: {len(y_1)}"
+        f"100步后 1 (Qwen2.5-3B-Instruct-QLoRA (4-bit)) 响应长度均值/Mean: {mean_1:.2f}, 标准差/Std: {std_1:.2f}, 样本数/N: {len(y_1)}"
     )
     print(
-        f"100步后 2 (better_reward_qwen2.5_1.5b) 响应长度均值/Mean: {mean_2:.2f}, 标准差/Std: {std_2:.2f}, 样本数/N: {len(y_2)}"
+        f"100步后 2 (Qwen2.5-1.5B-Instruct-QLoRA (4-bit)) 响应长度均值/Mean: {mean_2:.2f}, 标准差/Std: {std_2:.2f}, 样本数/N: {len(y_2)}"
     )
     print(
-        f"100步后 3 (better_reward_llama) 响应长度均值/Mean: {mean_3:.2f}, 标准差/Std: {std_3:.2f}, 样本数/N: {len(y_3)}"
+        f"100步后 3 (Llama-3.2-3B-Instruct-QLoRA (4-bit)) 响应长度均值/Mean: {mean_3:.2f}, 标准差/Std: {std_3:.2f}, 样本数/N: {len(y_3)}"
     )
     print(
         f"100步后 1,2,3 总体响应长度均值/Mean (all 1,2,3): {mean_123:.2f}, 标准差/Std: {std_123:.2f}, 样本数/N: {len(y_123)}"
     )
-    print(f"5 (course_2) 是 1,2,3 总均值的/Ratio: {ratio:.3f} 倍")
+    print(
+        f"5 (Qwen2.5-3B-Instruct-QLoRA (4-bit) + 长响应奖励函数) 是 1,2,3 总均值的/Ratio: {ratio:.3f} 倍"
+    )
     print(
         "==========================================================================\n"
     )
