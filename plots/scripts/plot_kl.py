@@ -21,7 +21,8 @@ def plot_smoothed_timeseries_full_range(
     outlier_std_factor=3,  # 定义异常值的标准差倍数（超过此倍数则视为异常）
     original_color_hex="#a9d6e5",  # 原始数据线条的十六进制颜色代码（浅蓝色）
     smoothed_color_hex="#014f86",  # 平滑后数据线条的十六进制颜色代码（深蓝色）
-    figsize=(12, 6),  # 图形的尺寸，格式为 (宽度, 高度)
+    figsize=(8, 6),  # 图形的尺寸，格式为 (宽度, 高度)
+    # figsize=(12, 6),  # 图形的尺寸，格式为 (宽度, 高度)
     title="指标随训练步数的变化",  # 图表的标题
     xlabel="train/global_step",  # X轴的标签
     ylabel="数值",  # Y轴的标签
@@ -118,7 +119,7 @@ def plot_smoothed_timeseries_full_range(
         color=original_color_hex,
         alpha=0.4,
         linewidth=1.5,
-        label="原始数据 (异常值已裁剪)",
+        label="原始值",
     )
 
     # 绘制平滑后的数据
@@ -128,19 +129,30 @@ def plot_smoothed_timeseries_full_range(
             y_smoothed,
             color=smoothed_color_hex,
             linewidth=2.5,
-            label=f"滑动平均 (窗口: {smoothing_window_size}, 边界: {boundary_mode})",
+            label=f"平滑值",
+            # label=f"滑动平均值",
+            # label=f"滑动平均 (窗口: {smoothing_window_size}, 边界: {boundary_mode})",
         )
 
-    plt.title(
-        title, fontsize=16, fontweight="bold"
-    )  # 设置图表标题，并指定字体大小和粗细
-    plt.xlabel(xlabel, fontsize=12)  # 设置X轴标签，并指定字体大小
-    plt.ylabel(ylabel, fontsize=12)  # 设置Y轴标签，并指定字体大小
+    # plt.title(
+    #     title, fontsize=16, fontweight="bold"
+    # )  # 设置图表标题，并指定字体大小和粗细
+    plt.xlabel(xlabel, fontsize=13)  # 设置X轴标签，并指定字体大小
+    plt.ylabel(ylabel, fontsize=13)  # 设置Y轴标签，并指定字体大小
 
-    plt.xticks(fontsize=10)  # 设置X轴刻度标签的字体大小
-    plt.yticks(fontsize=10)  # 设置Y轴刻度标签的字体大小
+    plt.xticks(fontsize=13)  # 设置X轴刻度标签的字体大小
+    plt.yticks(fontsize=13)  # 设置Y轴刻度标签的字体大小
 
-    plt.legend(fontsize=10)  # 显示图例，并指定图例字体大小
+    # plt.legend(
+    #     loc="upper left",
+    #     frameon=True,
+    #     shadow=False,
+    #     borderpad=0.8,
+    #     labelspacing=0.7,
+    #     handletextpad=0.8,
+    #     markerscale=0.9,
+    #     fontsize=12,
+    # )  # 显示图例，并指定图例字体大小
     plt.tight_layout()  # 自动调整子图参数，使其填充整个图像区域，防止标签重叠
     plt.show()  # 显示图形
 
@@ -179,8 +191,8 @@ if __name__ == "__main__":
         smoothing_window_size=50,
         outlier_detection_window_size=30,
         outlier_std_factor=2.5,
-        title="KL散度随训练步数的变化 (Reflect边界)\nKL Divergence vs. Training Steps (Reflect)",
-        xlabel="全局步数 Global Step",
-        ylabel="KL散度 KL Divergence",
+        # title="KL散度随训练步数的变化 (Reflect边界)\nKL Divergence vs. Training Steps (Reflect)",
+        xlabel="训练步数",
+        ylabel="KL 散度",
         boundary_mode="reflect",
     )
