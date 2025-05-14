@@ -218,13 +218,15 @@ if __name__ == "__main__":
         )
         # 绘图并保存
         plt.figure()
+        # 针对第6个图，调整滑动窗口为500，其余为50
+        smoothing_window = 300 if fig_key == 6 else 50
         plot_smoothed_timeseries_full_range(
             x_values=x,
             y_values=y,
-            smoothing_window_size=50,
+            smoothing_window_size=smoothing_window,
             outlier_detection_window_size=30,
             outlier_std_factor=2.5,
-            xlabel="训练步数",
+            xlabel="RL 训练步数",
             ylabel="KL 散度",
             boundary_mode="reflect",
         )
