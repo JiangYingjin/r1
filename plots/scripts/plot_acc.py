@@ -258,7 +258,7 @@ def plot_figure(fig_idx, fig_dict, output_dir):
         ax.spines[spine].set_linewidth(1.2)
         ax.spines[spine].set_color("black")
     plt.tight_layout(pad=2.2)
-    file_name = os.path.join(output_dir, f"fig{fig_idx}.png")
+    file_name = os.path.join(output_dir, f"{fig_idx}_acc.png")
     plt.savefig(file_name, dpi=300, bbox_inches="tight")
     print(f"图表已保存为: {file_name}")
     plt.close(fig)
@@ -272,7 +272,7 @@ def main():
     output_dir = "plots/output"
     os.makedirs(output_dir, exist_ok=True)
     for fig_idx in range(1, 7):
-        plot_figure(fig_idx, acc_data[f"fig{fig_idx}"], output_dir)
+        plot_figure(fig_idx, acc_data[fig_idx], output_dir)
 
 
 if __name__ == "__main__":

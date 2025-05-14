@@ -12,6 +12,15 @@ plt.rcParams["font.sans-serif"] = ["Noto Sans CJK JP"]
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["axes.unicode_minus"] = False
 
+fig_run_name = {
+    1: "better_reward_3",
+    2: "better_reward_qwen2.5_1.5b",
+    3: "better_reward_llama",
+    4: "gsmplus600_course_1",
+    5: "course_2",
+    6: "20250427_181546",
+}
+
 
 def plot_smoothed_timeseries_full_range(
     x_values,  # X轴的数据点
@@ -158,7 +167,7 @@ def plot_smoothed_timeseries_full_range(
     #     fontsize=12,
     # )  # 显示图例，并指定图例字体大小
     plt.tight_layout()  # 自动调整子图参数，使其填充整个图像区域，防止标签重叠
-    plt.show()  # 显示图形
+    # plt.show()  # 显示图形
 
 
 # 也可以尝试其他的 boundary_mode，例如：
@@ -167,36 +176,48 @@ def plot_smoothed_timeseries_full_range(
 # boundary_mode='constant', cval=0.0 # 使用常数填充，cval指定常数值
 
 if __name__ == "__main__":
-    # 1. 读取 JSON 文件
-    json_path = "plots/data/wandb/better_reward_3.json"
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    # 2. 去掉最后一个数据点
-    data = data[:-1]
-    # 3. 提取 x 和 y
-    x = np.array(
-        [
-            item["train/global_step"]
-            for item in data
-            if "train/global_step" in item and "train/kl" in item
-        ]
-    )
-    y = np.array(
-        [
-            item["train/kl"]
-            for item in data
-            if "train/global_step" in item and "train/kl" in item
-        ]
-    )
-    # 4. 调用绘图函数
-    plot_smoothed_timeseries_full_range(
-        x_values=x,
-        y_values=y,
-        smoothing_window_size=50,
-        outlier_detection_window_size=30,
-        outlier_std_factor=2.5,
-        # title="KL散度随训练步数的变化 (Reflect边界)\nKL Divergence vs. Training Steps (Reflect)",
-        xlabel="训练步数",
-        ylabel="KL 散度",
-        boundary_mode="reflect",
-    )
+    # 批量处理 fig_run_name 中的每个 run_name
+    for fig_key, run_name in fig_run_name.items():
+        json_path = f"plots/data/wandb/{run_name}.json"
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            print(f"未找到文件: {json_path}")
+            continue
+        if len(data) == 0:
+            print(f"文件为空: {json_path}")
+            continue
+        # 去掉最后一个数据点
+        data = data[:-1]
+        # 提取 x 和 y
+        x = np.array(
+            [
+                item["train/global_step"]
+                for item in data
+                if "train/global_step" in item and "train/kl" in item
+            ]
+        )
+        y = np.array(
+            [
+                item["train/kl"]
+                for item in data
+                if "train/global_step" in item and "train/kl" in item
+            ]
+        )
+        # 绘图并保存
+        plt.figure()
+        plot_smoothed_timeseries_full_range(
+            x_values=x,
+            y_values=y,
+            smoothing_window_size=50,
+            outlier_detection_window_size=30,
+            outlier_std_factor=2.5,
+            xlabel="训练步数",
+            ylabel="KL 散度",
+            boundary_mode="reflect",
+        )
+        save_path = f"plots/output/{fig_key}_kl.png"
+        plt.savefig(save_path, dpi=200, bbox_inches="tight")
+        plt.close()
+        print(f"已保存: {save_path}")
