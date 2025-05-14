@@ -137,8 +137,12 @@ def plot_smoothed_timeseries_full_range(
     # plt.title(
     #     title, fontsize=16, fontweight="bold"
     # )  # 设置图表标题，并指定字体大小和粗细
-    plt.xlabel(xlabel, fontsize=13)  # 设置X轴标签，并指定字体大小
-    plt.ylabel(ylabel, fontsize=13)  # 设置Y轴标签，并指定字体大小
+    plt.xlabel(
+        xlabel, fontsize=13, fontweight="bold", labelpad=15
+    )  # 设置X轴标签，并指定字体大小
+    plt.ylabel(
+        ylabel, fontsize=13, fontweight="bold", labelpad=15
+    )  # 设置Y轴标签，并指定字体大小
 
     plt.xticks(fontsize=13)  # 设置X轴刻度标签的字体大小
     plt.yticks(fontsize=13)  # 设置Y轴刻度标签的字体大小

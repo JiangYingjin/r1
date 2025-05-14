@@ -31,7 +31,8 @@ COLORS = {
     "baseline_orig": "#000000",
     "baseline_orig_fig6": "#A1887F",
     "baseline_prompt": "#BF360C",
-    "rl_tuned": "#0D47A1",
+    "rl_tuned": "#014f86",
+    # "rl_tuned": "#0D47A1",
     "grid_main": "#999999",
     "grid_minor": "#cccccc",
 }
