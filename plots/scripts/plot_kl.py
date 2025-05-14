@@ -63,6 +63,17 @@ def plot_smoothed_timeseries_full_range(
         return
 
     # --- 1. 异常值处理 (裁剪) ---
+    # 先做极端异常值舍弃
+    if len(y_values) > 0:
+        sorted_y = np.sort(y_values)
+        idx_85 = int(0.85 * len(sorted_y))
+        val_85 = sorted_y[idx_85]
+        extreme_threshold = 3 * val_85
+        mask = y_values <= extreme_threshold
+        if not np.all(mask):
+            print(f"有 {np.sum(~mask)} 个点被极端值舍弃 (>{extreme_threshold:.4f})")
+        x_values = x_values[mask]
+        y_values = y_values[mask]
     # 使用 pandas Series 以方便进行滚动计算
     y_series = pd.Series(y_values)
 
