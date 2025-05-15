@@ -236,7 +236,7 @@ if __name__ == "__main__":
             smoothing_window_size=smoothing_window,
             outlier_detection_window_size=30,
             outlier_std_factor=2.5,
-            xlabel="RL 训练步数",
+            xlabel="RL 训练步数（对数尺度）",
             ylabel="KL 散度",
             boundary_mode="reflect",
         )

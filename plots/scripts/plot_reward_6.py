@@ -146,7 +146,7 @@ if __name__ == "__main__":
     print(
         "==========================================================================\n"
     )
-    plt.xlabel("RL 训练步数", fontsize=13, fontweight="bold", labelpad=15)
+    plt.xlabel("RL 训练步数（对数尺度）", fontsize=13, fontweight="bold", labelpad=15)
     plt.ylabel("总奖励值", fontsize=13, fontweight="bold", labelpad=15)
     plt.xticks(fontsize=13)
     plt.yticks(fontsize=13)

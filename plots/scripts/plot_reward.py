@@ -164,7 +164,7 @@ if __name__ == "__main__":
         plot_smoothed_timeseries_full_range(
             x_values=x,
             y_values=y,
-            smoothing_window_size=10,
+            smoothing_window_size=50,
             outlier_detection_window_size=100,
             outlier_std_factor=2.5,
             original_color_hex=color + "55",
